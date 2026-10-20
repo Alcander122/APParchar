@@ -9,31 +9,48 @@
  */
 
 :root {
-  /* Colores de Marca y Emoción */
-  --color-brand-primary: #5D2FCF;        /* Morado Eléctrico */
-  --color-brand-primary-hover: #4C24AB;
-  --color-brand-secondary: #FF6B4A;      /* Naranja Coral */
-  --color-brand-secondary-hover: #E55635;
-  --color-brand-mint: #10B981;           /* Verde Menta */
-  --color-brand-coral: #EF4444;          /* Coral Rojo */
+  /* ===================================================================
+   * 1. Variables de Color Globales / Neutras
+   * =================================================================== */
+  --color-primary: #4F46E5;            /* Azul Eléctrico / Violeta */
+  --color-primary-hover: #4338CA;
+  --color-accent-warning: #F59E0B;     /* Ámbar / Miel para avisos y acentos */
+  --color-accent-warning-hover: #D97706;
 
-  /* Tema Oscuro por defecto (Profundidad índigo moderna) */
-  --color-bg: #0F0D15;
-  --color-surface: #1A1726;
-  --color-surface-subtle: #262238;
-  --color-border: #35304C;
-  --color-border-subtle: #262238;
+  /* ===================================================================
+   * 2. Modo Noche (Dark Theme - Default)
+   * =================================================================== */
+  --bg-main: #0A1128;                  /* Azul petróleo y magenta nocturno */
+  --card-bg: #131C35;
+  --card-shadow: 0px 10px 30px rgba(0, 0, 0, 0.5);
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
+  --border-color: rgba(255, 255, 255, 0.1);
 
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #A5A0B8;
-  --color-text-muted: #746E89;
-  --color-text-inverse: #0F0D15;
+  /* Mapeo Semántico hacia componentes */
+  --color-bg: var(--bg-main);
+  --color-surface: var(--card-bg);
+  --color-surface-subtle: #1A2444;
+  --color-border: var(--border-color);
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
 
-  --color-btn-primary: #5D2FCF;
-  --color-btn-primary-hover: #4C24AB;
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: #64748B;
+  --color-text-inverse: #0A1128;
+
+  --color-brand-primary: var(--color-primary);
+  --color-brand-primary-hover: var(--color-primary-hover);
+  --color-brand-secondary: var(--color-accent-warning);
+  --color-brand-secondary-hover: var(--color-accent-warning-hover);
+  --color-brand-mint: #10B981;
+  --color-brand-coral: #EF4444;
+
+  --color-btn-primary: var(--color-primary);
+  --color-btn-primary-hover: var(--color-primary-hover);
   --color-btn-primary-text: #FFFFFF;
-  --color-btn-secondary: #FF6B4A;
-  --color-btn-secondary-hover: #E55635;
+  --color-btn-secondary: var(--color-accent-warning);
+  --color-btn-secondary-hover: var(--color-accent-warning-hover);
   --color-btn-secondary-text: #FFFFFF;
   --color-btn-vote-yes: #10B981;
   --color-btn-vote-no: #EF4444;
@@ -42,27 +59,37 @@
   --color-status-error-bg: rgba(239, 68, 68, 0.15);
   --color-status-success: #10B981;
   --color-status-success-bg: rgba(16, 185, 129, 0.15);
-  --color-status-warning: #F59E0B;
-  --color-status-warning-bg: rgba(245, 158, 11, 0.15);
+  --color-status-warning: var(--color-accent-warning);
+  --color-status-warning-bg: rgba(245, 158, 11, 0.12);
   --color-status-info: #6366F1;
   --color-status-info-bg: rgba(99, 102, 241, 0.15);
+
+  /* Aliases de compatibilidad */
+  --color-brand-orange: var(--color-accent-warning);
+  --color-brand-purple: var(--color-primary);
 
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* Tema Claro (Inspirado en el mockup móvil image_0.png) */
+/* ===================================================================
+ * 3. Modo Día (Light Theme)
+ * =================================================================== */
 [data-theme="light"],
 .theme-light {
-  --color-bg: #F8FAFC;
-  --color-surface: #FFFFFF;
-  --color-surface-subtle: #F1F5F9;
-  --color-border: #E2E8F0;
-  --color-border-subtle: #F1F5F9;
+  --bg-main: #E2E8F0;                  /* Azul cielo / Lavanda claro */
+  --card-bg: #FFFFFF;                  /* Ultra limpia */
+  --card-shadow: 0px 10px 25px rgba(148, 163, 184, 0.25);
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --border-color: rgba(0, 0, 0, 0.08);
 
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #64748B;
+  --color-surface-subtle: #F1F5F9;
+  --color-border-subtle: rgba(0, 0, 0, 0.04);
   --color-text-muted: #94A3B8;
   --color-text-inverse: #FFFFFF;
+
+  --color-brand-orange: #D97706;
+  --color-brand-purple: var(--color-primary);
 
   --color-status-error-bg: #FEF2F2;
   --color-status-success-bg: #ECFDF5;
@@ -76,11 +103,11 @@
 
 html,
 body {
-  background-color: var(--color-bg);
-  color: var(--color-text-primary);
+  background-color: var(--bg-main);
+  color: var(--text-primary);
   font-family: var(--font-sans);
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }

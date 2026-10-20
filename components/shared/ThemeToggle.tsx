@@ -8,11 +8,13 @@ export function ThemeToggle({ className }: { className?: string }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem("apparchar_theme") as "light" | "dark" | null;
-    const initialTheme = saved || "dark";
-    setTheme(initialTheme);
-    document.documentElement.setAttribute("data-theme", initialTheme);
+    const saved = (localStorage.getItem("apparchar_theme") as "light" | "dark" | null) || "dark";
+    document.documentElement.setAttribute("data-theme", saved);
+    const frameId = requestAnimationFrame(() => {
+      setTheme(saved);
+      setMounted(true);
+    });
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   const toggleTheme = () => {
@@ -20,11 +22,18 @@ export function ThemeToggle({ className }: { className?: string }) {
     setTheme(nextTheme);
     document.documentElement.setAttribute("data-theme", nextTheme);
     localStorage.setItem("apparchar_theme", nextTheme);
+    window.dispatchEvent(new CustomEvent("apparchar:theme-change", { detail: nextTheme }));
   };
 
   if (!mounted) {
     return (
-      <div className={`w-9 h-9 rounded-xl border border-zinc-800 ${className || ""}`} />
+      <div
+        className={`w-9 h-9 rounded-xl border opacity-50 ${className || ""}`}
+        style={{
+          backgroundColor: "var(--card-bg)",
+          borderColor: "var(--border-color)",
+        }}
+      />
     );
   }
 
@@ -33,19 +42,20 @@ export function ThemeToggle({ className }: { className?: string }) {
       onClick={toggleTheme}
       type="button"
       aria-label="Alternar tema claro / oscuro"
-      title={theme === "dark" ? "Cambiar a Tema Claro" : "Cambiar a Tema Oscuro"}
-      className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all border ${className || ""}`}
+      title={theme === "dark" ? "Cambiar a Modo Día" : "Cambiar a Modo Noche"}
+      className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 border shadow-sm hover:scale-105 active:scale-95 ${className || ""}`}
       style={{
         backgroundColor: "var(--color-surface-subtle)",
-        borderColor: "var(--color-border)",
-        color: "var(--color-text-primary)",
+        borderColor: "var(--border-color)",
+        color: "var(--text-primary)",
       }}
     >
       {theme === "dark" ? (
-        <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform" />
+        <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform duration-300" />
       ) : (
-        <Moon className="w-4 h-4 text-purple-600 hover:-rotate-12 transition-transform" />
+        <Moon className="w-4 h-4 text-indigo-600 hover:-rotate-12 transition-transform duration-300" />
       )}
     </button>
   );
 }
+

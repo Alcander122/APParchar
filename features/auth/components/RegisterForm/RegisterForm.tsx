@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles, UserPlus, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { UserPlus, Loader2 } from "lucide-react";
 import "./RegisterForm.css";
 import { useRegisterForm } from "./useRegisterForm";
 import { MESSAGES } from "@/lib/constants/messages";
@@ -19,7 +20,14 @@ export function RegisterForm() {
 
       <header className="register-header">
         <div className="register-icon-badge">
-          <Sparkles className="w-7 h-7 text-white" />
+          <Image
+            src="/logo.jpg"
+            alt={MESSAGES.BRAND.NAME}
+            width={64}
+            height={64}
+            className="register-icon-img"
+            priority
+          />
         </div>
         <h1 className="register-title">
           {MESSAGES.AUTH.REGISTER_TITLE}{" "}

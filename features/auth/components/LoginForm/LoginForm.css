@@ -8,14 +8,17 @@
   max-width: 440px;
   margin: 0 auto;
   padding: clamp(1.25rem, 5vw, 2.25rem);
-  border-radius: clamp(1rem, 4vw, 1.5rem);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
-  color: var(--color-text-primary);
+  border-radius: clamp(1rem, 4vw, 1.5rem); /* 16px a 24px */
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+  color: var(--text-primary);
   font-family: inherit;
   box-sizing: border-box;
-  transition: all 0.25s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+  backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 10;
 }
 
 /* Header */
@@ -28,71 +31,87 @@
 }
 
 .login-icon-badge {
-  width: clamp(2.75rem, 8vw, 3.5rem);
-  height: clamp(2.75rem, 8vw, 3.5rem);
-  border-radius: clamp(0.75rem, 2vw, 1rem);
-  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
+  width: clamp(3.75rem, 11vw, 4.75rem);
+  height: clamp(3.75rem, 11vw, 4.75rem);
+  border-radius: clamp(1rem, 2.5vw, 1.25rem);
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.75rem;
-  box-shadow: 0 10px 20px rgba(93, 47, 207, 0.3);
+  margin-bottom: 0.85rem;
+  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.12);
   flex-shrink: 0;
+  background-color: var(--color-surface-card);
 }
 
-.login-icon-badge svg {
-  width: clamp(1.35rem, 4.5vw, 1.75rem);
-  height: clamp(1.35rem, 4.5vw, 1.75rem);
-  color: #ffffff;
+.login-icon-badge .login-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .login-title {
   font-size: clamp(1.25rem, 5vw, 1.5rem);
   font-weight: 700;
   letter-spacing: -0.025em;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   margin: 0;
   line-height: 1.25;
+  transition: color 0.3s ease;
 }
 
 .login-gradient-text {
-  background: linear-gradient(to right, #a78bfa, var(--color-brand-secondary));
+  background: linear-gradient(to right, #818cf8, var(--color-accent-warning));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .login-subtitle {
   font-size: clamp(0.8rem, 2.5vw, 0.875rem);
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   margin-top: 0.35rem;
   line-height: 1.4;
   max-width: 320px;
+  transition: color 0.3s ease;
 }
 
-/* Banner Demo */
+/* Banner Demo (Modo Mock) con fondo semitransparente, texto legible y borde punteado */
 .login-demo-banner {
   background-color: var(--color-status-warning-bg);
-  border: 1px dashed var(--color-brand-secondary);
+  border: 1.5px dashed var(--color-accent-warning);
   border-radius: 0.75rem;
   padding: clamp(0.6rem, 2vw, 0.75rem) clamp(0.75rem, 3vw, 1rem);
   margin-bottom: clamp(1rem, 3vw, 1.5rem);
   font-size: clamp(0.75rem, 2.5vw, 0.825rem);
-  color: var(--color-brand-secondary);
+  color: var(--color-accent-warning);
   line-height: 1.4;
   text-align: center;
+  transition: all 0.3s ease;
+}
+
+[data-theme="light"] .login-demo-banner {
+  color: #B45309; /* Ámbar oscuro para máximo contraste en fondo claro */
 }
 
 .login-demo-banner strong {
-  color: var(--color-brand-secondary);
+  color: inherit;
+  font-weight: 700;
 }
 
 .login-demo-banner code {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.15);
   padding: 0.1rem 0.35rem;
   border-radius: 0.25rem;
   font-family: monospace;
   font-size: 0.9em;
   word-break: break-all;
+  color: inherit;
+}
+
+[data-theme="light"] .login-demo-banner code {
+  background: rgba(245, 158, 11, 0.15);
 }
 
 /* Error Alert */
@@ -128,7 +147,8 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 .login-label-row {
@@ -140,14 +160,14 @@
 
 .login-link-forgot {
   font-size: 0.75rem;
-  color: var(--color-brand-secondary);
+  color: var(--color-accent-warning);
   text-decoration: none;
   transition: color 0.2s;
   white-space: nowrap;
 }
 
 .login-link-forgot:hover {
-  color: var(--color-brand-secondary-hover);
+  color: var(--color-accent-warning-hover);
 }
 
 /* Input Fields */
@@ -157,9 +177,9 @@
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
   background-color: var(--color-surface-subtle);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border-color);
   outline: none;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-size: 16px;
   transition: all 0.2s ease;
   box-sizing: border-box;
@@ -173,8 +193,8 @@
 }
 
 .login-input:focus {
-  border-color: var(--color-brand-primary);
-  box-shadow: 0 0 0 3px rgba(93, 47, 207, 0.25);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
 }
 
 .login-password-wrapper {
@@ -205,35 +225,39 @@
 }
 
 .login-eye-button:hover {
-  color: var(--color-text-primary);
+  color: var(--text-primary);
 }
 
-/* Submit Button - Morado Eléctrico institucional */
+/* Botón Principal ("Entrar al parche") - Azul Eléctrico con hover brillante */
 .login-submit-button {
   width: 100%;
   min-height: 48px;
   margin-top: 0.35rem;
   padding: 0.85rem 1rem;
   border-radius: 0.75rem;
-  background: var(--color-btn-primary);
+  background: var(--color-primary);
   border: none;
-  color: var(--color-btn-primary-text);
+  color: #ffffff;
   font-weight: 600;
   font-size: 0.925rem;
   cursor: pointer;
-  box-shadow: 0 10px 25px -5px rgba(93, 47, 207, 0.4);
-  transition: all 0.2s ease;
+  box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.45);
+  transition: all 0.25s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   touch-action: manipulation;
   user-select: none;
+  position: relative;
+  overflow: hidden;
 }
 
 .login-submit-button:hover:not(:disabled) {
-  background: var(--color-brand-primary-hover);
-  transform: translateY(-1px);
+  background: #5B52F5;
+  box-shadow: 0 0 30px rgba(79, 70, 229, 0.65), 0 10px 25px -5px rgba(79, 70, 229, 0.55);
+  transform: translateY(-2px);
+  filter: brightness(1.12);
 }
 
 .login-submit-button:active:not(:disabled) {
@@ -245,19 +269,19 @@
   cursor: not-allowed;
 }
 
-/* Quick Demo Button */
+/* Botón Secundario ("1 clic") - Outline con texto y borde color-accent-warning (#F59E0B) */
 .login-quick-demo-button {
   width: 100%;
   min-height: 44px;
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
-  background-color: var(--color-surface-subtle);
-  border: 1px solid var(--color-border);
-  color: var(--color-brand-secondary);
+  background-color: transparent;
+  border: 1.5px solid var(--color-accent-warning);
+  color: var(--color-accent-warning);
   font-weight: 600;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -267,9 +291,16 @@
   user-select: none;
 }
 
+[data-theme="light"] .login-quick-demo-button {
+  color: #D97706;
+  border-color: #D97706;
+}
+
 .login-quick-demo-button:hover {
-  background-color: var(--color-surface);
-  border-color: var(--color-brand-secondary);
+  background-color: rgba(245, 158, 11, 0.12);
+  border-color: #FBBF24;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+  transform: translateY(-1px);
 }
 
 .login-quick-demo-button:active {
@@ -281,12 +312,13 @@
   margin-top: clamp(1.25rem, 4vw, 2rem);
   text-align: center;
   font-size: clamp(0.75rem, 2.5vw, 0.8rem);
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 .login-link-register {
   font-weight: 600;
-  color: var(--color-brand-secondary);
+  color: var(--color-accent-warning);
   text-decoration: none;
   margin-left: 0.25rem;
   transition: color 0.2s;
@@ -294,7 +326,7 @@
 }
 
 .login-link-register:hover {
-  color: var(--color-brand-secondary-hover);
+  color: var(--color-accent-warning-hover);
 }
 
 /* Media Queries para Pantallas Muy Pequeñas */

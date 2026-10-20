@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles, Eye, EyeOff, LogIn, Loader2, Zap, ShieldAlert, MailCheck } from "lucide-react";
+import Image from "next/image";
+import { Eye, EyeOff, LogIn, Loader2, Zap, ShieldAlert, MailCheck } from "lucide-react";
 import "./LoginForm.css";
 import { useLoginForm } from "./useLoginForm";
 import { MESSAGES } from "@/lib/constants/messages";
@@ -35,7 +36,14 @@ export function LoginForm() {
       {/* Cabecera / Marca */}
       <header className="login-header">
         <div className="login-icon-badge">
-          <Sparkles className="w-7 h-7 text-white" />
+          <Image
+            src="/logo.jpg"
+            alt={MESSAGES.BRAND.NAME}
+            width={64}
+            height={64}
+            className="login-icon-img"
+            priority
+          />
         </div>
         <h1 className="login-title">
           {MESSAGES.AUTH.LOGIN_TITLE}{" "}

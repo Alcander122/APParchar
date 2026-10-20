@@ -12,15 +12,11 @@ export default function RegisterPage() {
   return (
     <main
       style={{
-        minHeight: "100dvh",
         width: "100%",
         display: "grid",
         placeItems: "center",
-        padding: "clamp(0.75rem, 3vw, 2rem)",
-        backgroundColor: "var(--color-bg)",
+        backgroundColor: "transparent",
         boxSizing: "border-box",
-        overflowY: "auto",
-        transition: "background-color 0.25s ease",
       }}
     >
       <Suspense fallback={<div className="w-full max-w-md h-96 rounded-2xl animate-pulse bg-zinc-900/50" />}>

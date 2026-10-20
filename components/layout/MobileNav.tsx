@@ -17,10 +17,10 @@ export function MobileNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 md:hidden border-t px-6 py-2 backdrop-blur-lg transition-colors"
+      className="fixed bottom-0 left-0 right-0 z-40 md:hidden border-t px-6 py-2 backdrop-blur-lg transition-colors duration-300"
       style={{
-        backgroundColor: "var(--color-surface)",
-        borderColor: "var(--color-border)",
+        backgroundColor: "var(--card-bg)",
+        borderColor: "var(--border-color)",
       }}
     >
       <div className="flex items-center justify-around max-w-md mx-auto">
@@ -31,9 +31,9 @@ export function MobileNav() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center gap-1 py-1 px-3 text-xs font-medium transition-all"
+              className="flex flex-col items-center gap-1 py-1 px-3 text-xs font-semibold transition-all"
               style={{
-                color: isActive ? "var(--color-brand-orange)" : "var(--color-text-muted)",
+                color: isActive ? "var(--color-primary)" : "var(--text-secondary)",
               }}
             >
               <Icon

@@ -24,36 +24,40 @@ async function PlanContent({ params }: PlanDetailPageProps) {
 
   return (
     <div
-      className="p-6 rounded-3xl border space-y-6 transition-colors"
+      className="p-6 sm:p-8 rounded-3xl border space-y-6 transition-all duration-300 backdrop-blur-md"
       style={{
-        backgroundColor: "var(--color-surface)",
-        borderColor: "var(--color-border)",
+        backgroundColor: "var(--card-bg)",
+        borderColor: "var(--border-color)",
+        boxShadow: "var(--card-shadow)",
       }}
     >
       {/* Encabezado del Detalle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span
-            className="text-xs font-mono font-semibold uppercase tracking-wider"
-            style={{ color: "var(--color-brand-orange)" }}
+            className="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-md"
+            style={{
+              backgroundColor: "var(--color-status-warning-bg)",
+              color: "var(--color-accent-warning)",
+            }}
           >
             {MESSAGES.PLANS.DETAIL.PLAN_PREFIX} {planId}
           </span>
           <h1
-            className="text-2xl sm:text-3xl font-extrabold mt-1"
-            style={{ color: "var(--color-text-primary)" }}
+            className="text-2xl sm:text-3xl font-extrabold mt-2 transition-colors"
+            style={{ color: "var(--text-primary)" }}
           >
             {planId === "paseo-playa" ? "Paseo a la Playa" : MESSAGES.PLANS.DETAIL.TITLE}
           </h1>
           <div
             className="flex items-center gap-4 mt-2 text-xs font-medium"
-            style={{ color: "var(--color-text-secondary)" }}
+            style={{ color: "var(--text-secondary)" }}
           >
             <span className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-orange-500" /> Santa Marta
+              <MapPin className="w-3.5 h-3.5 text-amber-500" /> Santa Marta
             </span>
             <span className="flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5 text-orange-500" /> 5 amigos registrados
+              <Users className="w-3.5 h-3.5 text-indigo-400" /> 5 amigos registrados
             </span>
           </div>
         </div>
@@ -67,31 +71,31 @@ async function PlanContent({ params }: PlanDetailPageProps) {
         <button
           className="pb-3 border-b-2 flex items-center gap-2"
           style={{
-            borderColor: "var(--color-brand-orange)",
-            color: "var(--color-brand-orange)",
+            borderColor: "var(--color-accent-warning)",
+            color: "var(--color-accent-warning)",
           }}
         >
           <Vote className="w-4 h-4" /> {MESSAGES.PLANS.DETAIL.TAB_SURVEYS}
         </button>
         <button
           className="pb-3 flex items-center gap-2 transition-colors"
-          style={{ color: "var(--color-text-secondary)" }}
+          style={{ color: "var(--text-secondary)" }}
         >
           <DollarSign className="w-4 h-4" /> {MESSAGES.PLANS.DETAIL.TAB_FUNDS}
         </button>
         <button
           className="pb-3 flex items-center gap-2 transition-colors"
-          style={{ color: "var(--color-text-secondary)" }}
+          style={{ color: "var(--text-secondary)" }}
         >
           <Calendar className="w-4 h-4" /> {MESSAGES.PLANS.DETAIL.TAB_INFO}
         </button>
       </div>
 
-      {/* Sección de Encuestas de Fecha (Fiel a image_0.png) */}
+      {/* Sección de Encuestas de Fecha */}
       <div className="space-y-4">
         <h3
-          className="text-sm font-bold uppercase tracking-wide"
-          style={{ color: "var(--color-text-secondary)" }}
+          className="text-sm font-bold uppercase tracking-wide transition-colors"
+          style={{ color: "var(--text-secondary)" }}
         >
           {MESSAGES.SURVEYS.SECTION_TITLE}
         </h3>
@@ -103,26 +107,26 @@ async function PlanContent({ params }: PlanDetailPageProps) {
             className="p-4 rounded-2xl border flex items-center justify-between transition-all"
             style={{
               backgroundColor: "var(--color-surface-subtle)",
-              borderColor: "var(--color-border)",
+              borderColor: "var(--border-color)",
             }}
           >
             <div className="flex items-center gap-3">
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-sm"
-                style={{ backgroundColor: "var(--color-brand-orange)" }}
+                style={{ backgroundColor: "var(--color-accent-warning)" }}
               >
                 14
               </div>
               <div>
                 <p
                   className="font-bold text-sm"
-                  style={{ color: "var(--color-text-primary)" }}
+                  style={{ color: "var(--text-primary)" }}
                 >
                   {MESSAGES.SURVEYS.OPTION_SATURDAY}
                 </p>
                 <p
                   className="text-xs"
-                  style={{ color: "var(--color-text-muted)" }}
+                  style={{ color: "var(--text-secondary)" }}
                 >
                   5 votos a favor
                 </p>
@@ -141,13 +145,13 @@ async function PlanContent({ params }: PlanDetailPageProps) {
             className="p-4 rounded-2xl border flex items-center justify-between transition-all"
             style={{
               backgroundColor: "var(--color-surface-subtle)",
-              borderColor: "var(--color-border)",
+              borderColor: "var(--border-color)",
             }}
           >
             <div className="flex items-center gap-3">
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-sm"
-                style={{ backgroundColor: "var(--color-brand-purple)" }}
+                style={{ backgroundColor: "var(--color-primary)" }}
               >
                 15
               </div>

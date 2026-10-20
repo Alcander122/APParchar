@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Sparkles, Bell, User, LogOut } from "lucide-react";
+import Image from "next/image";
+import { Bell, User, LogOut } from "lucide-react";
 import { signOutAction } from "@/features/auth/actions";
 import { MESSAGES } from "@/lib/constants/messages";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
@@ -7,26 +8,29 @@ import { ThemeToggle } from "@/components/shared/ThemeToggle";
 export function Header() {
   return (
     <header
-      className="sticky top-0 z-40 w-full border-b backdrop-blur-md transition-colors"
+      className="sticky top-0 z-40 w-full border-b backdrop-blur-md transition-colors duration-300"
       style={{
-        backgroundColor: "var(--color-surface)",
-        borderColor: "var(--color-border)",
+        backgroundColor: "var(--card-bg)",
+        borderColor: "var(--border-color)",
+        boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.15)",
       }}
     >
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
         {/* Logo de Marca */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-md transition-transform group-hover:scale-105"
-            style={{
-              background: "linear-gradient(135deg, var(--color-brand-orange), var(--color-brand-coral))",
-            }}
-          >
-            <Sparkles className="w-5 h-5" />
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="relative w-9 h-9 rounded-xl overflow-hidden shadow-md transition-all group-hover:scale-105 border border-white/10 shrink-0">
+            <Image
+              src="/logo.jpg"
+              alt={MESSAGES.BRAND.NAME}
+              fill
+              sizes="36px"
+              className="object-cover"
+              priority
+            />
           </div>
           <span
-            className="font-bold text-lg tracking-tight"
-            style={{ color: "var(--color-text-primary)" }}
+            className="font-extrabold text-lg tracking-tight"
+            style={{ color: "var(--text-primary)" }}
           >
             {MESSAGES.BRAND.NAME}
           </span>
