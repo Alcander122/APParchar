@@ -1,0 +1,11 @@
+{
+  "name": "apparchar-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix front run dev",
+    "build": "npm --prefix front run build",
+    "start": "npm --prefix front run start",
+    "lint": "npm --prefix front run lint"
+  }
+}
