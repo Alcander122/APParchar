@@ -1,0 +1,243 @@
+/* ===================================================
+   JoinParcheView Styles - Sistema Semántico Opción 1
+   (Morado Eléctrico + Naranja Coral + Menta)
+   =================================================== */
+
+.join-card {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 5vw, 2.25rem);
+  border-radius: clamp(1.25rem, 4vw, 1.75rem);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+/* Header */
+.join-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.join-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: var(--color-status-info-bg);
+  border: 1px solid var(--color-brand-primary);
+  color: var(--color-brand-primary);
+  margin-bottom: 0.75rem;
+}
+
+.join-title {
+  font-size: clamp(1.35rem, 5vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.join-subtitle {
+  font-size: clamp(0.8rem, 2.5vw, 0.875rem);
+  color: var(--color-text-secondary);
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
+/* Event Summary Card */
+.join-event-box {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.join-event-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.join-host-label {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.join-host-name {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+/* Voting Options */
+.join-voting-section {
+  margin-bottom: 1.5rem;
+}
+
+.join-section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.join-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.join-option-card {
+  padding: 0.85rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.join-option-card.active {
+  border-color: var(--color-brand-primary);
+  background-color: var(--color-surface-subtle);
+  box-shadow: 0 0 0 2px var(--color-brand-primary);
+}
+
+.join-option-date {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+.join-option-votes {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Guest Input */
+.join-guest-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-size: 16px;
+  outline: none;
+  margin-bottom: 0.75rem;
+  box-sizing: border-box;
+}
+
+.join-guest-input:focus {
+  border-color: var(--color-brand-primary);
+}
+
+/* Buttons */
+.join-btn-vote {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 0.75rem;
+  background: var(--color-brand-mint);
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);
+  transition: all 0.2s;
+}
+
+.join-btn-vote:hover {
+  filter: brightness(1.08);
+}
+
+.join-btn-demo {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 0.75rem;
+  background: var(--color-btn-primary);
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 10px 25px -5px rgba(93, 47, 207, 0.4);
+  transition: all 0.2s;
+}
+
+.join-btn-demo:hover {
+  background: var(--color-brand-primary-hover);
+}
+
+.join-btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  border-radius: 0.75rem;
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  color: var(--color-brand-secondary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.join-btn-login:hover {
+  background-color: var(--color-surface);
+  border-color: var(--color-brand-secondary);
+}
+
+/* Footer banner */
+.join-footer-banner {
+  margin-top: 1.5rem;
+  padding: 0.85rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-surface-subtle);
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  border: 1px dashed var(--color-border);
+}
+
+.join-footer-link {
+  font-weight: 700;
+  color: var(--color-brand-secondary);
+  text-decoration: none;
+  margin-left: 0.25rem;
+}
+
+.join-footer-link:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,336 @@
+/* ===================================================
+   LoginForm Styles - Sistema Semántico Opción 1
+   (Morado Eléctrico + Naranja Coral)
+   =================================================== */
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 5vw, 2.25rem);
+  border-radius: clamp(1rem, 4vw, 1.5rem);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+/* Header */
+.login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: clamp(1rem, 3.5vw, 1.75rem);
+}
+
+.login-icon-badge {
+  width: clamp(2.75rem, 8vw, 3.5rem);
+  height: clamp(2.75rem, 8vw, 3.5rem);
+  border-radius: clamp(0.75rem, 2vw, 1rem);
+  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 10px 20px rgba(93, 47, 207, 0.3);
+  flex-shrink: 0;
+}
+
+.login-icon-badge svg {
+  width: clamp(1.35rem, 4.5vw, 1.75rem);
+  height: clamp(1.35rem, 4.5vw, 1.75rem);
+  color: #ffffff;
+}
+
+.login-title {
+  font-size: clamp(1.25rem, 5vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.login-gradient-text {
+  background: linear-gradient(to right, #a78bfa, var(--color-brand-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.login-subtitle {
+  font-size: clamp(0.8rem, 2.5vw, 0.875rem);
+  color: var(--color-text-secondary);
+  margin-top: 0.35rem;
+  line-height: 1.4;
+  max-width: 320px;
+}
+
+/* Banner Demo */
+.login-demo-banner {
+  background-color: var(--color-status-warning-bg);
+  border: 1px dashed var(--color-brand-secondary);
+  border-radius: 0.75rem;
+  padding: clamp(0.6rem, 2vw, 0.75rem) clamp(0.75rem, 3vw, 1rem);
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
+  font-size: clamp(0.75rem, 2.5vw, 0.825rem);
+  color: var(--color-brand-secondary);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.login-demo-banner strong {
+  color: var(--color-brand-secondary);
+}
+
+.login-demo-banner code {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.9em;
+  word-break: break-all;
+}
+
+/* Error Alert */
+.login-error-alert {
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-status-error-bg);
+  border: 1px solid var(--color-status-error);
+  color: var(--color-status-error);
+  font-size: 0.825rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.35;
+}
+
+/* Form Groups */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.85rem, 2.5vw, 1.15rem);
+}
+
+.login-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.login-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+}
+
+.login-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.login-link-forgot {
+  font-size: 0.75rem;
+  color: var(--color-brand-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.login-link-forgot:hover {
+  color: var(--color-brand-secondary-hover);
+}
+
+/* Input Fields */
+.login-input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  outline: none;
+  color: var(--color-text-primary);
+  font-size: 16px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+}
+
+@media (min-width: 640px) {
+  .login-input {
+    font-size: 0.875rem;
+  }
+}
+
+.login-input:focus {
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px rgba(93, 47, 207, 0.25);
+}
+
+.login-password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.login-password-input {
+  padding-right: 3rem;
+}
+
+.login-eye-button {
+  position: absolute;
+  right: 0.5rem;
+  min-width: 40px;
+  min-height: 40px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  touch-action: manipulation;
+}
+
+.login-eye-button:hover {
+  color: var(--color-text-primary);
+}
+
+/* Submit Button - Morado Eléctrico institucional */
+.login-submit-button {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 0.35rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--color-btn-primary);
+  border: none;
+  color: var(--color-btn-primary-text);
+  font-weight: 600;
+  font-size: 0.925rem;
+  cursor: pointer;
+  box-shadow: 0 10px 25px -5px rgba(93, 47, 207, 0.4);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.login-submit-button:hover:not(:disabled) {
+  background: var(--color-brand-primary-hover);
+  transform: translateY(-1px);
+}
+
+.login-submit-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.login-submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Quick Demo Button */
+.login-quick-demo-button {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  color: var(--color-brand-secondary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.login-quick-demo-button:hover {
+  background-color: var(--color-surface);
+  border-color: var(--color-brand-secondary);
+}
+
+.login-quick-demo-button:active {
+  transform: translateY(1px);
+}
+
+/* Footer Link */
+.login-footer-text {
+  margin-top: clamp(1.25rem, 4vw, 2rem);
+  text-align: center;
+  font-size: clamp(0.75rem, 2.5vw, 0.8rem);
+  color: var(--color-text-secondary);
+}
+
+.login-link-register {
+  font-weight: 600;
+  color: var(--color-brand-secondary);
+  text-decoration: none;
+  margin-left: 0.25rem;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.login-link-register:hover {
+  color: var(--color-brand-secondary-hover);
+}
+
+/* Media Queries para Pantallas Muy Pequeñas */
+@media (max-width: 360px) {
+  .login-card {
+    padding: 1rem 0.85rem;
+    border-radius: 0.85rem;
+  }
+
+  .login-label-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+}
+
+/* Media Queries Landscape */
+@media (max-height: 660px) and (orientation: landscape) {
+  .login-card {
+    padding: 1rem 1.25rem;
+  }
+
+  .login-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .login-icon-badge {
+    display: none;
+  }
+
+  .login-demo-banner {
+    margin-bottom: 0.75rem;
+    padding: 0.4rem 0.75rem;
+  }
+
+  .login-footer-text {
+    margin-top: 0.75rem;
+  }
+}

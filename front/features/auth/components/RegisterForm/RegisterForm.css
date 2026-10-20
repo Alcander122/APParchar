@@ -1,0 +1,212 @@
+/* ===================================================
+   RegisterForm Styles - Sistema Semántico Opción 1
+   (Morado Eléctrico + Naranja Coral)
+   =================================================== */
+
+.register-card {
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 5vw, 2.25rem);
+  border-radius: clamp(1rem, 4vw, 1.5rem);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+.register-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: clamp(1rem, 3.5vw, 1.75rem);
+}
+
+.register-icon-badge {
+  width: clamp(2.75rem, 8vw, 3.5rem);
+  height: clamp(2.75rem, 8vw, 3.5rem);
+  border-radius: clamp(0.75rem, 2vw, 1rem);
+  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 10px 20px rgba(93, 47, 207, 0.3);
+  flex-shrink: 0;
+}
+
+.register-icon-badge svg {
+  width: clamp(1.35rem, 4.5vw, 1.75rem);
+  height: clamp(1.35rem, 4.5vw, 1.75rem);
+  color: #ffffff;
+}
+
+.register-title {
+  font-size: clamp(1.25rem, 5vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.register-gradient-text {
+  background: linear-gradient(to right, #a78bfa, var(--color-brand-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.register-subtitle {
+  font-size: clamp(0.8rem, 2.5vw, 0.875rem);
+  color: var(--color-text-secondary);
+  margin-top: 0.35rem;
+  line-height: 1.4;
+  max-width: 320px;
+}
+
+.register-error-alert {
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-status-error-bg);
+  border: 1px solid var(--color-status-error);
+  color: var(--color-status-error);
+  font-size: 0.825rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.35;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.85rem, 2.5vw, 1.15rem);
+}
+
+.register-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.register-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+}
+
+.register-input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  outline: none;
+  color: var(--color-text-primary);
+  font-size: 16px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+}
+
+@media (min-width: 640px) {
+  .register-input {
+    font-size: 0.875rem;
+  }
+}
+
+.register-input:focus {
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px rgba(93, 47, 207, 0.25);
+}
+
+.register-submit-button {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 0.35rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--color-btn-primary);
+  border: none;
+  color: var(--color-btn-primary-text);
+  font-weight: 600;
+  font-size: 0.925rem;
+  cursor: pointer;
+  box-shadow: 0 10px 25px -5px rgba(93, 47, 207, 0.4);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.register-submit-button:hover:not(:disabled) {
+  background: var(--color-brand-primary-hover);
+  transform: translateY(-1px);
+}
+
+.register-submit-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.register-submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.register-footer-text {
+  margin-top: clamp(1.25rem, 4vw, 2rem);
+  text-align: center;
+  font-size: clamp(0.75rem, 2.5vw, 0.8rem);
+  color: var(--color-text-secondary);
+}
+
+.register-link-login {
+  font-weight: 600;
+  color: var(--color-brand-secondary);
+  text-decoration: none;
+  margin-left: 0.25rem;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.register-link-login:hover {
+  color: var(--color-brand-secondary-hover);
+}
+
+/* Media Queries para Pantallas Muy Pequeñas */
+@media (max-width: 360px) {
+  .register-card {
+    padding: 1rem 0.85rem;
+    border-radius: 0.85rem;
+  }
+}
+
+/* Media Queries Landscape */
+@media (max-height: 660px) and (orientation: landscape) {
+  .register-card {
+    padding: 1rem 1.25rem;
+  }
+
+  .register-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .register-icon-badge {
+    display: none;
+  }
+
+  .register-footer-text {
+    margin-top: 0.75rem;
+  }
+}

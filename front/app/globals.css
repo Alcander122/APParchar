@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+/**
+ * ===================================================================
+ * Variables Semánticas del Sistema de Diseño (Claro / Oscuro)
+ * PALETA: Opción 1 ("Social & Eventos")
+ * Modificable en: front/lib/constants/theme.ts y aquí
+ * ===================================================================
+ */
+
+:root {
+  /* Colores de Marca y Emoción */
+  --color-brand-primary: #5D2FCF;        /* Morado Eléctrico */
+  --color-brand-primary-hover: #4C24AB;
+  --color-brand-secondary: #FF6B4A;      /* Naranja Coral */
+  --color-brand-secondary-hover: #E55635;
+  --color-brand-mint: #10B981;           /* Verde Menta */
+  --color-brand-coral: #EF4444;          /* Coral Rojo */
+
+  /* Tema Oscuro por defecto (Profundidad índigo moderna) */
+  --color-bg: #0F0D15;
+  --color-surface: #1A1726;
+  --color-surface-subtle: #262238;
+  --color-border: #35304C;
+  --color-border-subtle: #262238;
+
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A5A0B8;
+  --color-text-muted: #746E89;
+  --color-text-inverse: #0F0D15;
+
+  --color-btn-primary: #5D2FCF;
+  --color-btn-primary-hover: #4C24AB;
+  --color-btn-primary-text: #FFFFFF;
+  --color-btn-secondary: #FF6B4A;
+  --color-btn-secondary-hover: #E55635;
+  --color-btn-secondary-text: #FFFFFF;
+  --color-btn-vote-yes: #10B981;
+  --color-btn-vote-no: #EF4444;
+
+  --color-status-error: #EF4444;
+  --color-status-error-bg: rgba(239, 68, 68, 0.15);
+  --color-status-success: #10B981;
+  --color-status-success-bg: rgba(16, 185, 129, 0.15);
+  --color-status-warning: #F59E0B;
+  --color-status-warning-bg: rgba(245, 158, 11, 0.15);
+  --color-status-info: #6366F1;
+  --color-status-info-bg: rgba(99, 102, 241, 0.15);
+
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Tema Claro (Inspirado en el mockup móvil image_0.png) */
+[data-theme="light"],
+.theme-light {
+  --color-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-subtle: #F1F5F9;
+  --color-border: #E2E8F0;
+  --color-border-subtle: #F1F5F9;
+
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+  --color-text-inverse: #FFFFFF;
+
+  --color-status-error-bg: #FEF2F2;
+  --color-status-success-bg: #ECFDF5;
+  --color-status-warning-bg: #FFFBEB;
+  --color-status-info-bg: #EEF2FF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
