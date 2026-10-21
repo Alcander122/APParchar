@@ -1,0 +1,91 @@
+/* ===================================================
+   AgendaConflictAlert Styles - Alerta de Choque de Horarios
+   =================================================== */
+
+.agenda-conflict-card {
+  padding: clamp(0.85rem, 2.5vw, 1rem);
+  border-radius: 1rem;
+  border: 1px solid var(--color-accent-warning, #f59e0b);
+  background-color: rgba(245, 158, 11, 0.12);
+  color: var(--text-primary);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  animation: slideDownAlert 0.25s ease-out;
+}
+
+@keyframes slideDownAlert {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.agenda-conflict-icon-box {
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.agenda-conflict-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.agenda-conflict-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #f59e0b;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.agenda-conflict-message {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+.agenda-conflict-friends {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+}
+
+/* Modo Claro con Alto Contraste */
+[data-theme="light"] .agenda-conflict-card {
+  background-color: #FFFBEB;
+  border-color: #F59E0B;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.12);
+}
+
+[data-theme="light"] .agenda-conflict-icon-box {
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+
+[data-theme="light"] .agenda-conflict-title {
+  color: #92400E;
+}
+
+[data-theme="light"] .agenda-conflict-message {
+  color: #78350F;
+}
+
+[data-theme="light"] .agenda-conflict-friends {
+  color: #92400E;
+}
+

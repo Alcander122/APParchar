@@ -8,6 +8,8 @@ import { useLoginForm } from "./useLoginForm";
 import { MESSAGES } from "@/lib/constants/messages";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 
+import { GoogleAuthButton } from "../GoogleAuthButton";
+
 export function LoginForm() {
   const {
     state,
@@ -181,6 +183,16 @@ export function LoginForm() {
         <Zap className="w-4 h-4" />
         <span>{MESSAGES.AUTH.BTN_QUICK_DEMO}</span>
       </button>
+
+      {/* Separador de opciones de inicio de sesión */}
+      <div className="login-divider">
+        <span className="login-divider-line"></span>
+        <span className="login-divider-text">{MESSAGES.AUTH.DIVIDER_OR}</span>
+        <span className="login-divider-line"></span>
+      </div>
+
+      {/* Botón de Continuar con Google */}
+      <GoogleAuthButton mode="login" redirectTarget={redirectTarget} />
 
       {/* Pie de Registro con preservación de redirect */}
       <footer className="login-footer-text">

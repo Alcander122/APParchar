@@ -1,0 +1,182 @@
+/* ===================================================
+   CountdownWidget Styles - Timer en Vivo y Cron Mock
+   =================================================== */
+
+.countdown-widget-card {
+  width: 100%;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border-radius: 1.25rem;
+  background-color: var(--color-surface-subtle, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.countdown-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.countdown-pulse-dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 9999px;
+}
+
+.countdown-pulse-dot.active {
+  background-color: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+  animation: pulseDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.countdown-pulse-dot.closed {
+  background-color: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.2);
+  }
+}
+
+.countdown-status-text {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+}
+
+.countdown-simulate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 0.625rem;
+  color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.countdown-simulate-btn:hover {
+  background-color: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.6);
+  transform: translateY(-1px);
+}
+
+.countdown-simulate-btn:active {
+  transform: scale(0.97);
+}
+
+.countdown-display-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 3vw, 1.25rem);
+  padding: 0.5rem 0;
+}
+
+.countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: clamp(3.5rem, 10vw, 4.5rem);
+  padding: 0.6rem 0.5rem;
+  border-radius: 0.85rem;
+  background-color: var(--card-bg, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.countdown-num {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-weight: 900;
+  line-height: 1;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+
+.countdown-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-top: 0.35rem;
+}
+
+.countdown-separator {
+  font-family: ui-monospace, monospace;
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-weight: 700;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+
+.countdown-footer {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+}
+
+/* Modo Claro con Alto Contraste */
+[data-theme="light"] .countdown-widget-card {
+  background-color: #F8FAFC;
+  border-color: #E2E8F0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .countdown-status-text {
+  color: #0F172A;
+}
+
+[data-theme="light"] .countdown-unit {
+  background-color: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .countdown-num {
+  color: #0F172A;
+}
+
+[data-theme="light"] .countdown-label {
+  color: #475569;
+}
+
+[data-theme="light"] .countdown-separator {
+  color: #64748B;
+  opacity: 0.9;
+}
+
+[data-theme="light"] .countdown-simulate-btn {
+  color: #B45309;
+  background-color: #FEF3C7;
+  border-color: #F59E0B;
+}
+
+[data-theme="light"] .countdown-simulate-btn:hover {
+  background-color: #FDE68A;
+}
+
+[data-theme="light"] .countdown-footer {
+  border-top-color: #E2E8F0;
+  color: #475569;
+}
+

@@ -329,6 +329,30 @@
   color: var(--color-accent-warning-hover);
 }
 
+/* Separador para Auth Social */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.15rem 0 0.85rem;
+  width: 100%;
+}
+
+.login-divider-line {
+  flex: 1;
+  height: 1px;
+  background-color: var(--border-color, rgba(255, 255, 255, 0.12));
+}
+
+.login-divider-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary, #94a3b8);
+  white-space: nowrap;
+}
+
 /* Media Queries para Pantallas Muy Pequeñas */
 @media (max-width: 360px) {
   .login-card {

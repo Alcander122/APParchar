@@ -10,6 +10,8 @@ export function ThemeToggle({ className }: { className?: string }) {
   useEffect(() => {
     const saved = (localStorage.getItem("apparchar_theme") as "light" | "dark" | null) || "dark";
     document.documentElement.setAttribute("data-theme", saved);
+    document.documentElement.classList.toggle("dark", saved === "dark");
+    document.documentElement.classList.toggle("light", saved === "light");
     const frameId = requestAnimationFrame(() => {
       setTheme(saved);
       setMounted(true);
@@ -21,6 +23,8 @@ export function ThemeToggle({ className }: { className?: string }) {
     const nextTheme = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
     document.documentElement.setAttribute("data-theme", nextTheme);
+    document.documentElement.classList.toggle("dark", nextTheme === "dark");
+    document.documentElement.classList.toggle("light", nextTheme === "light");
     localStorage.setItem("apparchar_theme", nextTheme);
     window.dispatchEvent(new CustomEvent("apparchar:theme-change", { detail: nextTheme }));
   };

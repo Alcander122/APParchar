@@ -8,6 +8,8 @@ import { useRegisterForm } from "./useRegisterForm";
 import { MESSAGES } from "@/lib/constants/messages";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 
+import { GoogleAuthButton } from "../GoogleAuthButton";
+
 export function RegisterForm() {
   const { state, formAction, isPending, redirectTarget } = useRegisterForm();
 
@@ -102,6 +104,16 @@ export function RegisterForm() {
           )}
         </button>
       </form>
+
+      {/* Separador de opciones de registro */}
+      <div className="register-divider">
+        <span className="register-divider-line"></span>
+        <span className="register-divider-text">{MESSAGES.AUTH.DIVIDER_OR}</span>
+        <span className="register-divider-line"></span>
+      </div>
+
+      {/* Botón de Registrarse con Google */}
+      <GoogleAuthButton mode="register" redirectTarget={redirectTarget} />
 
       <footer className="register-footer-text">
         {MESSAGES.AUTH.HAVE_ACCOUNT}

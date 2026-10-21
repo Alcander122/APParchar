@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
+
 /**
  * ===================================================================
  * Variables Semánticas del Sistema de Diseño (Claro / Oscuro)
@@ -75,7 +77,8 @@
  * 3. Modo Día (Light Theme)
  * =================================================================== */
 [data-theme="light"],
-.theme-light {
+.theme-light,
+.light {
   --bg-main: #E2E8F0;                  /* Azul cielo / Lavanda claro */
   --card-bg: #FFFFFF;                  /* Ultra limpia */
   --card-shadow: 0px 10px 25px rgba(148, 163, 184, 0.25);

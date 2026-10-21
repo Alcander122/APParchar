@@ -1,56 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Calendar, Users, PlusCircle, CheckCircle2, Clock, MapPin } from "lucide-react";
+import { Sparkles, Calendar, Users, PlusCircle, CheckCircle2, Clock, MapPin, Tag, Shield } from "lucide-react";
 import { MESSAGES } from "@/lib/constants/messages";
 import Link from "next/link";
+import { usePlans } from "@/features/plans";
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<"voting" | "confirmed" | "history">("voting");
+  const { plans, openCreateModal } = usePlans();
 
-  // Planes de muestra sincronizados con los tokens de color del parche
-  const plansData = [
-    {
-      id: "paseo-playa",
-      title: "Paseo a la Playa",
-      status: "voting",
-      date: "Sáb 14 Nov - Dom 15 Nov",
-      location: "Santa Marta",
-      friendsCount: 5,
-      votesCount: 8,
-      statusLabel: MESSAGES.PLANS.TABS.VOTING,
-      tagColor: "var(--color-accent-warning)",
-      description: "Decidiendo entre salir sábado en la mañana o domingo bien temprano.",
-    },
-    {
-      id: "futbol-viernes",
-      title: "Fútbol Viernes",
-      status: "confirmed",
-      date: "Viernes 20 Nov - 7:00 PM",
-      location: "Canchas El Gol",
-      friendsCount: 10,
-      votesCount: 10,
-      statusLabel: MESSAGES.PLANS.TABS.CONFIRMED,
-      tagColor: "var(--color-brand-mint)",
-      description: "Cancha sintética reservada. Cuadremos la vaca del alquiler.",
-    },
-    {
-      id: "asado-cumple",
-      title: "Asado de Cumple",
-      status: "voting",
-      date: "Sábado 28 Nov",
-      location: "Casa de Camilo",
-      friendsCount: 7,
-      votesCount: 6,
-      statusLabel: MESSAGES.PLANS.TABS.VOTING,
-      tagColor: "var(--color-accent-warning)",
-      description: "Festejo de cumple con asado y buena música. ¡Llevar hidratación!",
-    },
-  ];
-
-  const filteredPlans = plansData.filter((plan) => {
+  const filteredPlans = plans.filter((plan) => {
     if (activeTab === "voting") return plan.status === "voting";
     if (activeTab === "confirmed") return plan.status === "confirmed";
+    if (activeTab === "history") return plan.status === "history";
     return true;
   });
 
@@ -93,7 +56,8 @@ export default function DashboardPage() {
 
           <button
             type="button"
-            className="self-start sm:self-center px-5 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-all duration-200 active:scale-95 text-white hover:brightness-110 hover:-translate-y-0.5"
+            onClick={openCreateModal}
+            className="hidden md:flex self-start sm:self-center px-5 py-2.5 rounded-xl font-semibold text-sm items-center gap-2 transition-all duration-200 active:scale-95 text-white hover:brightness-110 hover:-translate-y-0.5 cursor-pointer"
             style={{
               backgroundColor: "var(--color-primary)",
               boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.45)",
@@ -108,7 +72,7 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2 mt-6 overflow-x-auto pb-1">
           <button
             onClick={() => setActiveTab("voting")}
-            className="px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap border"
+            className="px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap border cursor-pointer"
             style={{
               backgroundColor:
                 activeTab === "voting" ? "var(--color-accent-warning)" : "var(--color-surface-subtle)",
@@ -123,7 +87,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => setActiveTab("confirmed")}
-            className="px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap border"
+            className="px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap border cursor-pointer"
             style={{
               backgroundColor:
                 activeTab === "confirmed" ? "var(--color-brand-mint)" : "var(--color-surface-subtle)",
@@ -138,7 +102,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => setActiveTab("history")}
-            className="px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap border"
+            className="px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap border cursor-pointer"
             style={{
               backgroundColor:
                 activeTab === "history" ? "var(--color-primary)" : "var(--color-surface-subtle)",
@@ -159,58 +123,95 @@ export default function DashboardPage() {
           <Link
             key={plan.id}
             href={`/plan/${plan.id}`}
-            className="group block rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/50 hover:shadow-2xl backdrop-blur-sm"
+            className="group block rounded-2xl border overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/50 hover:shadow-2xl backdrop-blur-sm"
             style={{
               backgroundColor: "var(--card-bg)",
               borderColor: "var(--border-color)",
               boxShadow: "var(--card-shadow)",
             }}
           >
-            {/* Encabezado de la Tarjeta */}
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <span
-                className="px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm"
-                style={{ backgroundColor: plan.tagColor }}
+            {/* Portada del Plan */}
+            {plan.coverImage && (
+              <div className="relative h-36 w-full overflow-hidden">
+                <img
+                  src={plan.coverImage}
+                  alt={plan.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                  <span
+                    className="px-2.5 py-0.5 rounded-full text-[11px] font-bold text-white shadow-md uppercase tracking-wider"
+                    style={{
+                      backgroundColor:
+                        plan.status === "voting"
+                          ? "var(--color-accent-warning, #f59e0b)"
+                          : "var(--color-brand-mint, #10b981)",
+                    }}
+                  >
+                    {plan.status === "voting" ? "En Votación" : "Confirmado"}
+                  </span>
+                  <span className="text-[11px] font-bold text-white bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-sm capitalize">
+                    {plan.category}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div className="p-5">
+              {/* Filtros de Audiencia Badges */}
+              <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300">
+                  {plan.ageFilter}
+                </span>
+                {plan.genderFilter !== "mixto" && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-300 capitalize">
+                    {plan.genderFilter.replace("_", " ")}
+                  </span>
+                )}
+                {plan.accessibilityFilter !== "ninguna" && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300 capitalize">
+                    {plan.accessibilityFilter.replace("_", " ")}
+                  </span>
+                )}
+              </div>
+
+              {/* Título y Descripción */}
+              <h3
+                className="text-lg font-bold transition-colors group-hover:text-indigo-400"
+                style={{ color: "var(--text-primary)" }}
               >
-                {plan.statusLabel}
-              </span>
-              <span
-                className="text-xs font-medium flex items-center gap-1"
+                {plan.title}
+              </h3>
+              <p
+                className="text-xs mt-1.5 line-clamp-2 transition-colors"
                 style={{ color: "var(--text-secondary)" }}
               >
-                <Users className="w-3.5 h-3.5 text-indigo-400" /> {plan.friendsCount} amigos
-              </span>
-            </div>
+                {plan.description}
+              </p>
 
-            {/* Título y Descripción */}
-            <h3
-              className="text-lg font-bold transition-colors group-hover:text-indigo-400"
-              style={{ color: "var(--text-primary)" }}
-            >
-              {plan.title}
-            </h3>
-            <p
-              className="text-xs mt-1.5 line-clamp-2 transition-colors"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              {plan.description}
-            </p>
-
-            {/* Metadatos (Fecha & Ubicación) */}
-            <div
-              className="mt-4 pt-3 border-t flex flex-col gap-1.5 text-xs font-medium"
-              style={{
-                borderColor: "var(--border-color)",
-                color: "var(--text-secondary)",
-              }}
-            >
-              <div className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-amber-500" />
-                <span>{plan.date}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-amber-500" />
-                <span>{plan.location}</span>
+              {/* Metadatos (Fecha & Ubicación & Amigos) */}
+              <div
+                className="mt-4 pt-3 border-t flex flex-col gap-1.5 text-xs font-medium"
+                style={{
+                  borderColor: "var(--border-color)",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-amber-500" />
+                    <span>{plan.date}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-indigo-400 font-semibold">
+                    <Users className="w-3.5 h-3.5" />
+                    <span>{plan.invitedFriends?.length || 0}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{plan.location}</span>
+                </div>
               </div>
             </div>
           </Link>
@@ -231,3 +232,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+
