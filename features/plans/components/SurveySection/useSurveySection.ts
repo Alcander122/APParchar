@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { VoteOption, PlanSurvey } from "../../types";
-import { LOCATION_PRESETS } from "../../mockData";
+import { fetchSuggestedLocationsFromSupabase, SuggestedLocationItem } from "../../services/plansDb";
 
 interface UseSurveySectionProps {
   survey: PlanSurvey;
@@ -14,7 +14,27 @@ export function useSurveySection({ survey, onAddOption }: UseSurveySectionProps)
   const [showAddModal, setShowAddModal] = useState(false);
   const [newLabel, setNewLabel] = useState("");
   const [newSublabel, setNewSublabel] = useState("");
-  const [selectedPhoto, setSelectedPhoto] = useState(LOCATION_PRESETS[0].photoUrl);
+  const [suggestedLocations, setSuggestedLocations] = useState<SuggestedLocationItem[]>([]);
+  const [selectedPhoto, setSelectedPhoto] = useState<string>("");
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadLocations() {
+      try {
+        const dbLocations = await fetchSuggestedLocationsFromSupabase();
+        if (isMounted && dbLocations.length > 0) {
+          setSuggestedLocations(dbLocations);
+          setSelectedPhoto(dbLocations[0].photoUrl);
+        }
+      } catch (err) {
+        console.warn("Error cargando lugares sugeridos:", err);
+      }
+    }
+    loadLocations();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const currentUser = "Tú";
 
@@ -62,6 +82,7 @@ export function useSurveySection({ survey, onAddOption }: UseSurveySectionProps)
     setNewSublabel,
     selectedPhoto,
     setSelectedPhoto,
+    suggestedLocations,
     currentUser,
     winningDate,
     winningLocation,

@@ -1,188 +1,183 @@
-# 🏛️ Arquitectura y Guía de Desarrollo: APParchar
+# 🏛️ Arquitectura y Guía Técnica: APParchar
 
-Este documento es la **guía oficial del estado del proyecto**. Explica qué está construido hoy, qué falta por hacer y **exactamente dónde y cómo se deben crear los componentes futuros** para mantener el código limpio y ordenado.
-
----
-
-## 1. 📊 Estado Real del Proyecto (Lo que hay vs Lo que falta)
-
-Para no perderse en el código, es fundamental distinguir la realidad actual:
-
-### ✅ Lo que SÍ está implementado hoy:
-1. **Flujo de Autenticación (`front/features/auth`)**:
-   - Vistas completas de Login (`LoginForm`) y Registro (`RegisterForm`) con validación y alternador de tema claro/oscuro.
-   - Acciones de servidor en `actions.ts` (`loginWithEmail`, `loginQuickDemo`, `signOutAction`) operando con una cookie de sesión mock (`apparchar_session`).
-   - Redirección automática tras autenticarse a la pantalla principal (`/`) o a la URL de origen si venía de un enlace protegido o de invitación.
-2. **Guardia de Rutas y Proxy (`front/proxy.ts`)**:
-   - Intercepta solicitudes: protege rutas privadas (`/`, `/amigos`, `/perfil`, `/plan/...`), permite públicas (`/login`, `/register`) y habilita híbridas (`/join/...`).
-3. **Vistas Prototipo Maquetadas (`front/app/(app)`)**:
-   - Pantalla Principal / Dashboard (`/`): interfaz visual con pestañas y tarjetas basadas en datos de prueba locales (`plansData`).
-   - Vista de Amigos (`/amigos`): interfaz con lista maquetada (`friendsList`).
-   - Vista de Perfil (`/perfil`): datos del usuario y botón de cierre de sesión.
-   - Vista de Detalle de Plan (`/plan/[planId]`): estructura visual del plan con pestañas de info, encuesta y gastos.
-   - Vista de Invitación (`/join/[token]`): pantalla donde un invitado puede votar o entrar, consumiendo el componente modular `JoinParcheView`.
-4. **Base de Datos Inicial (`back/supabase/migrations`)**:
-   - Esquema inicial con tablas `profiles` y `plans`, Row Level Security (RLS) y trigger de creación de perfil.
+Este documento es la **guía oficial de arquitectura, estructura y estado real del proyecto APParchar**. Explica cómo está organizado el sistema, cómo interactúa con Supabase en tiempo real, el modelo de datos en español, las reglas de desarrollo y la separación entre la aplicación web y la base de datos.
 
 ---
 
-### ⏳ Lo que AÚN NO está hecho (Trabajo Pendiente):
-1. **Modularización de Pantallas**:
-   - Las páginas principales (`app/(app)/page.tsx`, `amigos/page.tsx`, `plan/[planId]/page.tsx`) aún tienen su HTML, estilos y datos de prueba **escritos directamente dentro del archivo de la página**, en lugar de llamar a componentes reutilizables dentro de su respectiva carpeta `features/`.
-2. **Features en Estado Esqueleto**:
-   - `front/features/friends`, `front/features/funds`, `front/features/surveys`, `front/features/gamification` y `front/features/admin` son carpetas vacías con solo un archivo `index.ts` esperando implementación.
-3. **Conexión a Base de Datos en Vivo**:
-   - El login y las tarjetas actualmente funcionan con datos mockeados en memoria/cookies para permitir iteración visual rápida antes de conectar las queries reales a Supabase.
+## 1. 📊 Estado Real del Proyecto
+
+Toda la aplicación ha sido migrada a una **arquitectura 100% orientada a Base de Datos (Single Source of Truth)** con Supabase, eliminando por completo los datos ficticios ("quemados").
+
+### ✅ Lo que SÍ está implementado y funcionando:
+
+1. **Separación de Repositorios (Frontend vs. Base de Datos)**:
+   - **`APParchar`** (`github.com/Alcander122/APParchar`): Repositorio del frontend web desarrollado en **React 19 (utilizando el framework Next.js 16 con App Router)**, optimizado y conectado para despliegue continuo en **Vercel**.
+   - **`APParchar_BD`** (`github.com/Alcander122/APParchar_BD`): Repositorio dedicado de base de datos conectado a **Supabase (GitHub Integration)**, permitiendo que analistas de datos gestionen esquemas, catálogos y migraciones sin tocar el código web.
+
+2. **Base de Datos Relacional y Esquema en Español (`supabase/setup_completo.sql`)**:
+   - **Tablas oficiales**: `perfiles`, `amistades`, `planes`, `miembros_plan`, `encuestas`, `opciones_encuesta`, `votos_encuesta`, `vacas`, `aportes_vaca`.
+   - **Tablas de catálogo maestras**: `categorias_plan`, `catalogo_filtros`, `lugares_sugeridos`.
+   - **Seguridad**: **Row Level Security (RLS)** estricto habilitado en todas las tablas y buckets (incluyendo políticas de `INSERT` para que usuarios autenticados autogestionen su perfil).
+   - **Triggers automáticos en PostgreSQL**:
+     - `handle_new_user()`: Crea el perfil automáticamente en `public.perfiles` al registrarse (Email o Google OAuth).
+     - `handle_updated_at()`: Mantiene la marca de tiempo `updated_at`.
+     - `handle_vaca_aporte()`: Suma automáticamente el monto acumulado en `vacas` ante cada aporte.
+   - **Automatización**: Función `cerrar_encuestas_vencidas()` programable con `pg_cron` para cerrar votaciones y coronar la opción ganadora.
+
+3. **Cero Datos Quemados (Carga 100% Dinámica desde Supabase)**:
+   - Se eliminaron las constantes estáticas de respaldo (`DEFAULT_CATEGORIES`, `DEFAULT_FILTERS_CATALOG`, `DEFAULT_CIRCLES`, `LOCATION_PRESETS`).
+   - Las categorías, filtros de audiencia (edad, accesibilidad, género), círculos de amigos y lugares sugeridos se consultan en tiempo real desde `categorias_plan`, `catalogo_filtros` y `lugares_sugeridos`.
+   - Íconos dinámicos en categorías: Soporte tanto para nombres de componentes Lucide (`Palmtree`, `PartyPopper`, `Music`, `Utensils`, etc.) como para emojis directos almacenados en la base de datos.
+
+4. **Utilidades Centralizadas de Fechas (`lib/utils/date.ts`)**:
+   - Constantes centralizadas en español: `DAYS_OF_WEEK`, `MONTHS_LONG`, `MONTHS_SHORT`, `WEEKDAY_SHORT_NAMES`.
+   - Funciones reutilizables: `formatDateToLabel()`, `formatDateToIso()`, `getNextWeekendPlanDates()`.
+   - Compatibilidad SSR (Next.js 16): Inicialización de fechas postergada a `useEffect` para evitar errores de hidratación con valores inestables (`new Date()`).
+
+5. **Optimización y Configuración de Imágenes**:
+   - [next.config.ts](file:///d:/Proyectos/APParchar/next.config.ts) configurado con `images.remotePatterns` autorizando `images.unsplash.com`, `**.supabase.co` y `*.googleusercontent.com`.
+   - Propiedad `unoptimized` como respaldo en componentes visuales (`PlanCard`, `Avatar`, `Perfil`) para garantizar que fotos externas o avatares de OAuth nunca interrumpan la ejecución.
+
+6. **Almacenamiento de Archivos (Supabase Storage)**:
+   - Buckets creados: `portadas-planes` y `avatares` (con lectura pública y escritura autenticada con RLS).
+   - Servicio [features/plans/services/storage.ts](file:///d:/Proyectos/APParchar/features/plans/services/storage.ts) para subir imágenes binarias y retornar URLs públicas directas.
+
+7. **Autenticación Oficial y Sesiones Seguras**:
+   - Integración oficial con **Google OAuth** y **Email/Contraseña** mediante `@supabase/ssr`.
+   - Route Handlers `/callback` y `/auth/callback` para el intercambio seguro del código OAuth por tokens de sesión JWT.
+   - Middleware ([lib/supabase/middleware.ts](file:///d:/Proyectos/APParchar/lib/supabase/middleware.ts)) que refresca sesiones automáticamente con cookies `HttpOnly` y protege rutas privadas.
+
+8. **Sincronización en Tiempo Real (Supabase Realtime)**:
+   - Publicación `supabase_realtime` activa en `encuestas`, `opciones_encuesta`, `votos_encuesta`, `amistades` y `planes`.
+   - Contexto de React ([PlansContext.tsx](file:///d:/Proyectos/APParchar/features/plans/context/PlansContext.tsx)) suscrito mediante WebSocket para reflejar votos instantáneamente en todas las pantallas.
 
 ---
 
-## 2. 🗺️ Mapa de Rutas: ¿Dónde debo crear cada componente?
+## 2. 🗂️ Estructura de Directorios del Repositorio
 
-Cuando vayas a crear un nuevo componente o a extraer partes de las pantallas actuales, usa esta tabla como regla estricta:
+El proyecto está construido en **React 19 utilizando el framework Next.js 16 (App Router)** organizado mediante **Feature-Driven Architecture (FDA)**:
 
-| ¿Qué vas a construir? | Carpeta Destino | Ejemplo de Componente |
+```text
+APParchar/
+├── app/                              # Rutas y páginas de Next.js (App Router)
+│   ├── (admin)/admin/page.tsx        # Dashboard de métricas del administrador
+│   ├── (app)/                        # Layout principal autenticado
+│   │   ├── page.tsx                  # Tablero principal de parches
+│   │   ├── amigos/page.tsx           # Vista de amigos y rachas
+│   │   ├── perfil/page.tsx           # Vista de perfil de usuario
+│   │   └── plan/[planId]/page.tsx    # Vista detallada de un plan
+│   ├── (auth)/                       # Rutas de autenticación
+│   │   ├── login/page.tsx            # Formulario de inicio de sesión
+│   │   ├── register/page.tsx         # Formulario de registro
+│   │   └── callback/route.ts         # Callback OAuth de Google
+│   ├── auth/callback/route.ts        # Callback alternativo estándar para OAuth
+│   ├── join/[token]/page.tsx         # Pantalla pública para unirse a un parche
+│   ├── layout.tsx                    # Root Layout y configuración de temas
+│   └── globals.css                   # Sistema de diseño y variables CSS
+│
+├── features/                         # Módulos de dominio de la aplicación
+│   ├── auth/                         # Autenticación, Google Button, Server Actions
+│   │   ├── components/               # LoginForm, RegisterForm, GoogleAuthButton
+│   │   ├── hooks/                    # useAuth, useLoginForm
+│   │   └── actions.ts                # loginWithEmail, registerWithEmail, signOut
+│   │
+│   └── plans/                        # Núcleo de planes, encuestas y vacas
+│       ├── components/               # Componentes modulares
+│       │   ├── PlanCard/             # Tarjeta resumen de un plan
+│       │   ├── PlanDetailView/       # Vista de pestañas, encuestas y vacas
+│       │   ├── CreatePlanModal/      # Modal de creación paso a paso
+│       │   ├── EditPlanModal/        # Modal para modificar detalles de imprevistos
+│       │   ├── SurveySection/        # Votación de fechas y lugares
+│       │   ├── FriendsSelector/      # Selector de amigos con filtros de círculos
+│       │   ├── JoinParcheView/       # Interfaz para invitados por enlace
+│       │   ├── PlanBudgetLocationPicker/ # Selector de presupuesto y sugerencias
+│       │   └── CountdownWidget/      # Cuenta regresiva y simulación de expiración
+│       ├── context/                  # PlansContext (estado global + Realtime)
+│       ├── services/                 # Consultas directas a Supabase
+│       │   ├── plansDb.ts            # CRUD de planes, encuestas, votos y vacas
+│       │   └── storage.ts            # Subida de fotos a Supabase Storage
+│       ├── utils/                    # Funciones utilitarias de dominio
+│       │   └── agendaConflicts.ts    # Detección de colisiones de horarios
+│       ├── constants.ts              # Presets de portadas recomendadas
+│       └── types.ts                  # Tipos e interfaces de planes y encuestas
+│
+├── lib/                              # Infraestructura y utilidades transversales
+│   ├── supabase/                     # Clientes de Supabase
+│   │   ├── client.ts                 # createBrowserClient (Client Components)
+│   │   ├── server.ts                 # createServerClient (Server Components / RSC)
+│   │   └── middleware.ts             # Gestión de cookies JWT y rutas protegidas
+│   ├── types/                        # Tipado generado de la Base de Datos
+│   │   └── database.ts               # Tipos TypeScript 1:1 con las tablas de Supabase
+│   ├── utils/                        # Utilidades transversales
+│   │   ├── cn.ts                     # Combinador de clases CSS (Tailwind/clsx)
+│   │   ├── date.ts                   # Formateo centralizado de fechas y días
+│   │   └── formatCOP.ts              # Formateo de moneda colombiana ($ COP)
+│   └── constants/                    # Diccionarios de textos y mensajes
+│       └── messages.ts               # Centralización estricta de textos (i18n / copy)
+│
+└── supabase/                         # Scripts de base de datos locales
+    ├── setup_completo.sql            # Script maestro unificado e idempotente
+    ├── schema.sql                    # Definición de tablas y políticas RLS
+    ├── presets_and_filters.sql       # Inserción de catálogos y presets
+    └── seed.sql                      # Datos de prueba opcionales
+```
+
+---
+
+## 3. 🗺️ Mapa de Tablas de la Base de Datos (PostgreSQL en Supabase)
+
+| Tabla | Propósito | Relaciones Clave |
 | :--- | :--- | :--- |
-| **Tarjetas de parches, listas o tableros de planes** | `front/features/plans/components/` | `PlanCard/`, `PlanTabs/`, `KanbanBoard/` |
-| **Detalle de un plan específico** | `front/features/plans/components/` | `PlanHeader/`, `PlanTimeline/` |
-| **Formulario o Modal para crear un nuevo parche** | `front/features/plans/components/` | `CreatePlanModal/`, `CreatePlanForm/` |
-| **Lista de amigos, solicitudes y grupos** | `front/features/friends/components/` | `FriendList/`, `FriendCard/`, `InviteModal/` |
-| **"La Vaca", cuotas de pago, abonos y finanzas** | `front/features/funds/components/` | `FundSummary/`, `PaymentTable/`, `VacaCounter/` |
-| **Votaciones de fechas, lugares y encuestas** | `front/features/surveys/components/` | `DatePoll/`, `PlaceVoting/` |
-| **Medallas, rachas de asistencia y logros** | `front/features/gamification/components/` | `StreakBadge/`, `LevelProgress/` |
-| **Componentes de navegación global o estructura** | `front/components/layout/` | Ya existen: `Header.tsx`, `MobileNav.tsx`, `FabCreatePlan.tsx` |
-| **Elementos visuales reutilizables sin lógica de negocio** | `front/components/shared/` o `ui/` | `ThemeToggle.tsx`, `Avatar.tsx`, `Button.tsx`, modales genéricos |
+| **`perfiles`** | Datos de cuenta, rol (`user`/`admin`), avatar y racha | `id` referencia `auth.users(id)` |
+| **`amistades`** | Relación de amistad entre dos usuarios y su círculo (`intimo`, `cercano`, `comunidad`) | `user_id` y `amigo_id` referencian `perfiles(id)` |
+| **`planes`** | Información principal del parche (título, descripción, fecha, lugar, filtros) | `creator_id` referencia `perfiles(id)` |
+| **`miembros_plan`** | Amigos invitados y su rol en el parche (`organizador`, `tesorero`, `parcheador`, `invitado`) | `plan_id` y `user_id` |
+| **`encuestas`** | Encuesta vinculada a un plan con temporizador (`expires_at`, `is_closed`) | `plan_id` (1 a 1 con `planes`) |
+| **`opciones_encuesta`** | Opciones dinámicas de fecha (`date`) y lugar (`location`) sugeridas | `poll_id` referencia `encuestas(id)` |
+| **`votos_encuesta`** | Registro de qué usuario votó por cuál opción | `option_id`, `poll_id` y `user_id` |
+| **`vacas`** | Fondo económico del plan (`target_amount`, `current_amount`) | `plan_id` referencia `planes(id)` |
+| **`aportes_vaca`** | Pagos y aportes de dinero registrados con nota y monto | `vaca_id` y `user_id` |
+| **`categorias_plan`** | Catálogo de tipos de parche con fotos recomendadas (`portadas_preset`) | Clave foránea en `planes.category` |
+| **`catalogo_filtros`** | Catálogo de opciones de edad, accesibilidad, género y círculos | Opciones dinámicas de audiencia |
+| **`lugares_sugeridos`** | Catálogo de sitios y restaurantes con fotos para sugerir en encuestas | Referencia a `categorias_plan(id)` |
 
 ---
 
-## 3. 📂 Estructura Interna de un Feature
+## 4. 📐 Estándar de Construcción de Componentes
 
-Cada carpeta dentro de `front/features/<feature>/` debe mantener este estándar:
+Cada componente dentro de `features/<feature>/components/<Componente>/` debe seguir la siguiente estructura:
 
 ```text
-front/features/<nombre-feature>/
-├── components/                     # Componentes visuales del feature
-│   ├── NombreComponente/
-│   │   ├── NombreComponente.tsx   # JSX del componente ("use client" solo si tiene interactividad)
-│   │   ├── NombreComponente.css   # Estilos propios del componente
-│   │   ├── useNombreComponente.ts # (Opcional) Hook con la lógica de estado local
-│   │   └── index.ts                # export { NombreComponente } from "./NombreComponente";
-│   └── index.ts                    # export * from "./NombreComponente";
-├── hooks/                          # Custom hooks compartidos del feature (ej. usePlans.ts)
-├── actions.ts                      # Server Actions ("use server") para crear/editar datos
-├── queries.ts                      # Funciones de lectura contra Supabase
-├── types.ts                        # Interfaces TypeScript específicas del feature
-└── index.ts                        # ⚠️ BARRIL PÚBLICO: lo único que se importa desde afuera
+NombreComponente/
+├── NombreComponente.tsx       # JSX / Presentación limpia
+├── NombreComponente.css       # Estilos específicos si son requeridos
+├── useNombreComponente.ts     # Hook con estado y lógica desacoplada (opcional pero recomendado)
+└── index.ts                   # Exportación limpia: export { NombreComponente } from "./NombreComponente";
 ```
 
----
-
-## 4. 🛠️ Ejemplo Real y Práctico: Extrayendo `PlanCard` hacia `features/plans`
-
-Actualmente en `front/app/(app)/page.tsx` las tarjetas de planes están escritas dentro de la página. Este es el paso a paso exacto de cómo modularizarlo:
-
-### Paso 1: Crear la carpeta del componente
-Crea la carpeta en `front/features/plans/components/PlanCard/`:
-```text
-front/features/plans/components/PlanCard/
-├── PlanCard.tsx
-├── PlanCard.css
-└── index.ts
-```
-
-### Paso 2: Crear el archivo `PlanCard.tsx`
-```tsx
-// front/features/plans/components/PlanCard/PlanCard.tsx
-import Link from "next/link";
-import { Calendar, Users, MapPin } from "lucide-react";
-import "./PlanCard.css";
-
-export interface PlanCardData {
-  id: string;
-  title: string;
-  status: "voting" | "confirmed" | "history";
-  date: string;
-  location: string;
-  friendsCount: number;
-  votesCount: number;
-  statusLabel: string;
-  tagColor: string;
-  description: string;
-}
-
-interface PlanCardProps {
-  plan: PlanCardData;
-}
-
-export function PlanCard({ plan }: PlanCardProps) {
-  return (
-    <Link href={`/plan/${plan.id}`} className="plan-card">
-      <div className="plan-card-header">
-        <span
-          className="plan-card-badge"
-          style={{ backgroundColor: `${plan.tagColor}20`, color: plan.tagColor }}
-        >
-          {plan.statusLabel}
-        </span>
-      </div>
-      <h3 className="plan-card-title">{plan.title}</h3>
-      <p className="plan-card-desc">{plan.description}</p>
-      <div className="plan-card-meta">
-        <span><Calendar className="w-4 h-4" /> {plan.date}</span>
-        <span><MapPin className="w-4 h-4" /> {plan.location}</span>
-        <span><Users className="w-4 h-4" /> {plan.friendsCount} amigos</span>
-      </div>
-    </Link>
-  );
-}
-```
-
-### Paso 3: Exportar en los archivos barril
-1. En `front/features/plans/components/PlanCard/index.ts`:
-   ```typescript
-   export { PlanCard } from "./PlanCard";
-   export type { PlanCardData } from "./PlanCard";
-   ```
-
-2. En `front/features/plans/components/index.ts`:
-   ```typescript
-   export * from "./JoinParcheView";
-   export * from "./PlanCard";
-   ```
-
-3. En `front/features/plans/index.ts`:
-   ```typescript
-   export * from "./components";
-   export const PLANS_FEATURE_READY = true;
-   ```
-
-### Paso 4: Usar el componente en la página (`app/(app)/page.tsx`)
-Ahora la página solo ensambla y consume el componente mediante el import limpio:
-
-```tsx
-// front/app/(app)/page.tsx
-"use client";
-
-import { PlanCard } from "@/features/plans";
-
-// En el JSX de la página:
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  {filteredPlans.map((plan) => (
-    <PlanCard key={plan.id} plan={plan} />
-  ))}
-</div>
-```
-
----
-
-## 5. ⚠️ Reglas Obligatorias para Nuevos Componentes
-
-1. **Las páginas (`front/app/**/page.tsx`) NO deben contener lógica pesada**:
-   - La página solo debe obtener parámetros de ruta (`params`), coordinar la carga de datos y renderizar componentes de los features.
-2. **Nunca hacer importaciones profundas hacia subcarpetas**:
-   - ✅ Correcto: `import { PlanCard } from "@/features/plans";`
+### Reglas Obligatorias:
+1. **Páginas Delgadas**: Las páginas en `app/**/page.tsx` solo obtienen parámetros, llaman a los componentes del feature y no deben contener lógica pesada de negocio ni formularios gigantes.
+2. **Importaciones Limpias mediante Barriles**:
+   - ✅ Correcto: `import { PlanCard, CreatePlanModal } from "@/features/plans";`
    - ❌ Incorrecto: `import { PlanCard } from "@/features/plans/components/PlanCard/PlanCard";`
-   - Si TypeScript no encuentra el módulo, verifica que esté exportado en el `index.ts` de la carpeta del feature.
-3. **Manejo de Textos y Copywriting**:
-   - No quemes textos de UI directamente en el JSX. Usa siempre el diccionario centralizado [front/lib/constants/messages.ts](file:///d:/Proyectos/APParchar/front/lib/constants/messages.ts) (`MESSAGES.AUTH.*`, `MESSAGES.PLANS.*`, etc.).
-4. **Manejo de Estilos**:
-   - Usa las variables CSS del sistema de diseño definidas en `globals.css` (ej. `var(--color-surface)`, `var(--color-brand-orange)`, `var(--color-text-primary)`). Esto garantiza compatibilidad inmediata con el modo claro y oscuro.
+3. **Cero Textos Quemados en JSX**:
+   - Todo texto de interfaz, títulos, botones o mensajes de error debe provenir de [lib/constants/messages.ts](file:///d:/Proyectos/APParchar/lib/constants/messages.ts).
+4. **Cero Fechas o Meses Quemados**:
+   - Todo nombre de día o mes debe provenir de [lib/utils/date.ts](file:///d:/Proyectos/APParchar/lib/utils/date.ts).
+5. **Variables de Diseño CSS**:
+   - Utilizar siempre las variables semánticas de `globals.css` (ej. `var(--card-bg)`, `var(--text-primary)`, `var(--color-primary)`), asegurando compatibilidad nativa con Modo Claro y Modo Oscuro.
+6. **Tipado Estricto de Supabase**:
+   - Toda consulta debe utilizar los tipos definidos en [lib/types/database.ts](file:///d:/Proyectos/APParchar/lib/types/database.ts) para garantizar que TypeScript detecte errores de esquema en tiempo de compilación.
+
+---
+
+## 5. 🚀 Despliegue en Producción (Vercel)
+
+El repositorio web **`APParchar`** está listo para despliegue continuo (CI/CD) en Vercel:
+1. Conectar el repositorio `Alcander122/APParchar` en [vercel.com](https://vercel.com).
+2. Configurar las Variables de Entorno en Vercel:
+   - `NEXT_PUBLIC_SUPABASE_URL`: URL del proyecto en Supabase.
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Llave pública anónima de Supabase.
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: Misma llave anónima.
+3. En el panel de Supabase (**Authentication > URL Configuration**), agregar la URL de producción de Vercel (ej. `https://tu-app.vercel.app`) en **Site URL** y `https://tu-app.vercel.app/**` en **Redirect URLs**.
+

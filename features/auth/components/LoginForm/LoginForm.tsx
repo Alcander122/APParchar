@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, EyeOff, LogIn, Loader2, Zap, ShieldAlert, MailCheck } from "lucide-react";
+import { Eye, EyeOff, LogIn, Loader2, ShieldAlert, MailCheck } from "lucide-react";
 import "./LoginForm.css";
 import { useLoginForm } from "./useLoginForm";
 import { MESSAGES } from "@/lib/constants/messages";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
-
 import { GoogleAuthButton } from "../GoogleAuthButton";
 
 export function LoginForm() {
@@ -21,8 +20,6 @@ export function LoginForm() {
     setEmailInput,
     passwordInput,
     setPasswordInput,
-    handleQuickDemo,
-    mockCredentials,
     redirectTarget,
     isUnauthorized,
     isInviteFlow,
@@ -87,15 +84,6 @@ export function LoginForm() {
         </div>
       )}
 
-      {/* Banner de Credenciales Quemadas */}
-      <aside className="login-demo-banner">
-        <div>
-          🔥 <strong>{MESSAGES.BRAND.DEMO_BANNER.PREFIX}</strong> Usa{" "}
-          <code>{mockCredentials.email}</code> / clave:{" "}
-          <code>{mockCredentials.password}</code> o entra directo con 1 clic.
-        </div>
-      </aside>
-
       {/* Alerta de Error si ocurre */}
       {state?.error && (
         <div className="login-error-alert" role="alert">
@@ -104,7 +92,7 @@ export function LoginForm() {
         </div>
       )}
 
-      {/* Formulario HTML */}
+      {/* Formulario de Inicio de Sesión */}
       <form action={formAction} className="login-form">
         {/* Input oculto para persistir el destino de retorno tras login */}
         <input type="hidden" name="redirect" value={redirectTarget} />
@@ -173,16 +161,6 @@ export function LoginForm() {
           )}
         </button>
       </form>
-
-      {/* Botón de Acceso Rápido Demo 1-Clic */}
-      <button
-        type="button"
-        onClick={handleQuickDemo}
-        className="login-quick-demo-button"
-      >
-        <Zap className="w-4 h-4" />
-        <span>{MESSAGES.AUTH.BTN_QUICK_DEMO}</span>
-      </button>
 
       {/* Separador de opciones de inicio de sesión */}
       <div className="login-divider">

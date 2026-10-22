@@ -23,6 +23,8 @@ export function FriendsSelector({
     setSearchQuery,
     filtered,
     isSelected,
+    isLoading,
+    circles,
   } = useFriendsSelector({ selectedFriends });
 
   return (
@@ -40,14 +42,9 @@ export function FriendsSelector({
           />
         </div>
 
-        {/* Círculos del Árbol de Amigos */}
+        {/* Círculos del Árbol de Amigos (desde Supabase: catalogo_filtros tipo 'circulo') */}
         <div className="friends-circles-scroll">
-          {[
-            { id: "todos", label: "Todos" },
-            { id: "intimo", label: "Círculo Íntimo" },
-            { id: "cercano", label: "Cercanos" },
-            { id: "comunidad", label: "Comunidad" },
-          ].map((circle) => (
+          {circles.map((circle) => (
             <button
               key={circle.id}
               type="button"
@@ -61,48 +58,60 @@ export function FriendsSelector({
       </div>
 
       {/* Lista de Amigos para Invitar */}
-      <div className="friends-grid-list">
-        {filtered.map((friend) => {
-          const selected = isSelected(friend.id);
-          return (
-            <button
-              key={friend.id}
-              type="button"
-              onClick={() => onToggleFriend(friend)}
-              className={`friend-item-btn ${selected ? "selected" : ""}`}
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div
-                  className="friend-avatar-circle shadow-sm"
-                  style={{
-                    background: selected
-                      ? "linear-gradient(135deg, var(--color-primary), var(--color-accent-warning))"
-                      : "rgba(255, 255, 255, 0.15)",
-                  }}
-                >
-                  {friend.name.slice(0, 2).toUpperCase()}
-                </div>
-                <div className="truncate">
-                  <p className="text-xs font-bold truncate" style={{ color: "var(--text-primary)" }}>
-                    {friend.name}
-                  </p>
-                  <div className="flex items-center gap-1.5 text-[10px]" style={{ color: "var(--text-secondary)" }}>
-                    <span className="capitalize">{friend.circle}</span>
-                    <span>•</span>
-                    <span className="flex items-center gap-0.5 text-amber-500 font-semibold">
-                      <Flame className="w-2.5 h-2.5 fill-amber-500" /> {friend.streak}
-                    </span>
+      {isLoading ? (
+        <div className="p-6 text-center text-xs opacity-70">
+          Cargando amigos desde la base de datos...
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="p-6 text-center text-xs border border-dashed rounded-xl opacity-75">
+          {searchQuery
+            ? "No se encontraron amigos con esa búsqueda."
+            : "No hay amigos en este círculo aún. ¡Invítalos al parche!"}
+        </div>
+      ) : (
+        <div className="friends-grid-list">
+          {filtered.map((friend) => {
+            const selected = isSelected(friend.id);
+            return (
+              <button
+                key={friend.id}
+                type="button"
+                onClick={() => onToggleFriend(friend)}
+                className={`friend-item-btn ${selected ? "selected" : ""}`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div
+                    className="friend-avatar-circle shadow-sm"
+                    style={{
+                      background: selected
+                        ? "linear-gradient(135deg, var(--color-primary), var(--color-accent-warning))"
+                        : "rgba(255, 255, 255, 0.15)",
+                    }}
+                  >
+                    {friend.name.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="truncate">
+                    <p className="text-xs font-bold truncate" style={{ color: "var(--text-primary)" }}>
+                      {friend.name}
+                    </p>
+                    <div className="flex items-center gap-1.5 text-[10px]" style={{ color: "var(--text-secondary)" }}>
+                      <span className="capitalize">{friend.circle}</span>
+                      <span>•</span>
+                      <span className="flex items-center gap-0.5 text-amber-500 font-semibold">
+                        <Flame className="w-2.5 h-2.5 fill-amber-500" /> {friend.streak}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className={`friend-checkbox ${selected ? "checked" : ""}`}>
-                {selected && <Check className="w-3.5 h-3.5 stroke-[3px]" />}
-              </div>
-            </button>
-          );
-        })}
-      </div>
+                <div className={`friend-checkbox ${selected ? "checked" : ""}`}>
+                  {selected && <Check className="w-3.5 h-3.5 stroke-[3px]" />}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className="flex items-center justify-between text-xs px-1" style={{ color: "var(--text-secondary)" }}>
         <span className="flex items-center gap-1">

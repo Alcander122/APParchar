@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { MOCK_CREDENTIALS } from "./constants";
+import { createClient, isSupabaseConfiguredServer } from "@/lib/supabase/server";
 
 export interface AuthState {
   error?: string | null;
@@ -11,8 +11,8 @@ export interface AuthState {
 }
 
 /**
- * Iniciar sesión (Modo quemado / visualización de prototipo)
- * Respeta la redirección de origen (Deep Link / Invitaciones)
+ * Iniciar sesión: Realiza autenticación en Supabase Auth si está configurado;
+ * de lo contrario, permite acceso de demostración.
  */
 export async function loginWithEmail(
   prevState: AuthState | null,
@@ -26,55 +26,29 @@ export async function loginWithEmail(
     return { error: "Por favor ingresa tu correo y contraseña." };
   }
 
-  // Validación de credenciales quemadas o acceso con demo
-  const isValid =
-    (email === MOCK_CREDENTIALS.email && password === MOCK_CREDENTIALS.password) ||
-    password.length >= 3;
-
-  if (!isValid) {
+  if (!isSupabaseConfiguredServer()) {
     return {
-      error: `Credenciales incorrectas. Usa ${MOCK_CREDENTIALS.email} con clave ${MOCK_CREDENTIALS.password}`,
+      error: "El servicio de autenticación no está configurado. Configura las variables de Supabase.",
     };
   }
 
-  const cookieStore = await cookies();
-  cookieStore.set(
-    "apparchar_session",
-    JSON.stringify({
-      email,
-      name: email === MOCK_CREDENTIALS.email ? MOCK_CREDENTIALS.name : "Usuario Parche",
-      role: email.includes("admin") ? "admin" : "user",
-      authenticatedAt: new Date().toISOString(),
-    }),
-    {
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7,
-    }
-  );
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-  revalidatePath("/", "layout");
-
-  // Redirección inteligente: si venía de un enlace de invitación o ruta protegida
-  if (redirectTarget && redirectTarget.startsWith("/")) {
-    redirect(redirectTarget);
-  } else {
-    redirect("/");
+  if (error) {
+    return { error: error.message };
   }
-}
 
-/**
- * Inicio de sesión instantáneo de 1 clic (Acceso Rápido Demo)
- * Permite pasar un redirectTarget opcional
- */
-export async function quickDemoLogin(redirectTarget?: string) {
+  // Asegurar cookie de sesión de aplicación para proxy / middleware
   const cookieStore = await cookies();
   cookieStore.set(
     "apparchar_session",
     JSON.stringify({
-      email: MOCK_CREDENTIALS.email,
-      name: MOCK_CREDENTIALS.name,
+      email: data.user?.email || email,
+      name: data.user?.user_metadata?.full_name || email.split("@")[0],
       role: "user",
       authenticatedAt: new Date().toISOString(),
     }),
@@ -96,7 +70,7 @@ export async function quickDemoLogin(redirectTarget?: string) {
 }
 
 /**
- * Registro simulado con soporte de retorno inteligente
+ * Registro con correo y contraseña en Supabase Auth
  */
 export async function registerWithEmail(
   prevState: AuthState | null,
@@ -111,6 +85,50 @@ export async function registerWithEmail(
     return { error: "Por favor completa todos los campos." };
   }
 
+  if (isSupabaseConfiguredServer()) {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          name: fullName,
+        },
+      },
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    const cookieStore = await cookies();
+    cookieStore.set(
+      "apparchar_session",
+      JSON.stringify({
+        email,
+        name: fullName,
+        role: "user",
+        authenticatedAt: new Date().toISOString(),
+      }),
+      {
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7,
+      }
+    );
+
+    revalidatePath("/", "layout");
+
+    if (redirectTarget && redirectTarget.startsWith("/")) {
+      redirect(redirectTarget);
+    } else {
+      redirect("/");
+    }
+  }
+
+  // Fallback demo
   const cookieStore = await cookies();
   cookieStore.set(
     "apparchar_session",
@@ -141,6 +159,15 @@ export async function registerWithEmail(
  * Cerrar sesión
  */
 export async function signOutAction() {
+  if (isSupabaseConfiguredServer()) {
+    try {
+      const supabase = await createClient();
+      await supabase.auth.signOut();
+    } catch {
+      // Ignorar errores al cerrar sesión
+    }
+  }
+
   const cookieStore = await cookies();
   cookieStore.delete("apparchar_session");
   revalidatePath("/", "layout");

@@ -2,8 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { loginWithEmail, quickDemoLogin, type AuthState } from "../../actions";
-import { MOCK_CREDENTIALS } from "../../constants";
+import { loginWithEmail, type AuthState } from "../../actions";
 
 export function useLoginForm() {
   const searchParams = useSearchParams();
@@ -11,8 +10,8 @@ export function useLoginForm() {
   const reason = searchParams.get("reason") || "";
 
   const [showPassword, setShowPassword] = useState(false);
-  const [emailInput, setEmailInput] = useState(MOCK_CREDENTIALS.email);
-  const [passwordInput, setPasswordInput] = useState(MOCK_CREDENTIALS.password);
+  const [emailInput, setEmailInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
 
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(
     loginWithEmail,
@@ -21,10 +20,6 @@ export function useLoginForm() {
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
-  };
-
-  const handleQuickDemo = async () => {
-    await quickDemoLogin(redirectTarget);
   };
 
   const isUnauthorized = reason === "unauthorized";
@@ -40,8 +35,6 @@ export function useLoginForm() {
     setEmailInput,
     passwordInput,
     setPasswordInput,
-    handleQuickDemo,
-    mockCredentials: MOCK_CREDENTIALS,
     redirectTarget,
     isUnauthorized,
     isInviteFlow,

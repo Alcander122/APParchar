@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles, Calendar, MapPin, CheckCircle2, UserCheck, Zap, LogIn, ArrowRight } from "lucide-react";
+import { Sparkles, Calendar, MapPin, CheckCircle2, UserCheck, LogIn, ArrowRight } from "lucide-react";
 import "./JoinParcheView.css";
 import { useJoinParche } from "./useJoinParche";
 import { MESSAGES } from "@/lib/constants/messages";
@@ -15,6 +15,8 @@ export function JoinParcheView({ token }: JoinParcheViewProps) {
   const {
     user,
     isAuthenticated,
+    planDetails,
+    isLoading,
     selectedDate,
     setSelectedDate,
     guestName,
@@ -22,8 +24,35 @@ export function JoinParcheView({ token }: JoinParcheViewProps) {
     guestVoteConfirmed,
     confirmedOption,
     handleGuestVote,
-    handleQuickJoin,
   } = useJoinParche({ token });
+
+  if (isLoading) {
+    return (
+      <div className="join-card p-12 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
+        Cargando invitación del parche...
+      </div>
+    );
+  }
+
+  if (!planDetails) {
+    return (
+      <div className="join-card p-8 text-center space-y-4">
+        <h2 className="text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+          Parche no encontrado
+        </h2>
+        <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+          El enlace de invitación no es válido o el plan fue eliminado.
+        </p>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white"
+          style={{ backgroundColor: "var(--color-btn-primary)" }}
+        >
+          Volver al Inicio
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="join-card">
@@ -42,50 +71,49 @@ export function JoinParcheView({ token }: JoinParcheViewProps) {
         <p className="join-subtitle">{MESSAGES.INVITATION.SUBTITLE}</p>
       </header>
 
-      {/* Resumen del Parche */}
+      {/* Resumen del Parche desde la Base de Datos */}
       <div className="join-event-box">
         <div className="join-event-row">
           <span className="join-host-label">{MESSAGES.INVITATION.INVITED_BY}</span>
-          <span className="join-host-name">{MESSAGES.INVITATION.HOST_NAME}</span>
+          <span className="join-host-name">{planDetails.creatorName}</span>
         </div>
 
         <div className="border-t pt-2" style={{ borderColor: "var(--color-border-subtle)" }}>
           <h2 className="text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
-            Paseo a la Playa
+            {planDetails.title}
           </h2>
           <div className="flex items-center gap-3 mt-1 text-xs" style={{ color: "var(--color-text-secondary)" }}>
             <span className="flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5 text-orange-500" /> Noviembre 2026
+              <Calendar className="w-3.5 h-3.5 text-orange-500" /> {planDetails.date}
             </span>
             <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-orange-500" /> Santa Marta
+              <MapPin className="w-3.5 h-3.5 text-orange-500" /> {planDetails.location}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Votación de Fechas */}
-      <div className="join-voting-section">
-        <h3 className="join-section-title">{MESSAGES.SURVEYS.SECTION_TITLE}</h3>
+      {/* Votación de Fechas reales de la Base de Datos */}
+      {planDetails.options.length > 0 && (
+        <div className="join-voting-section">
+          <h3 className="join-section-title">{MESSAGES.SURVEYS.SECTION_TITLE}</h3>
 
-        <div className="join-options-grid">
-          <div
-            onClick={() => setSelectedDate("sab-14")}
-            className={`join-option-card ${selectedDate === "sab-14" ? "active" : ""}`}
-          >
-            <div className="join-option-date">{MESSAGES.SURVEYS.OPTION_SATURDAY}</div>
-            <div className="join-option-votes">5 votos a favor</div>
-          </div>
-
-          <div
-            onClick={() => setSelectedDate("dom-15")}
-            className={`join-option-card ${selectedDate === "dom-15" ? "active" : ""}`}
-          >
-            <div className="join-option-date">{MESSAGES.SURVEYS.OPTION_SUNDAY}</div>
-            <div className="join-option-votes">3 votos a favor</div>
+          <div className="join-options-grid">
+            {planDetails.options.map((opt) => (
+              <div
+                key={opt.id}
+                onClick={() => setSelectedDate(opt.id)}
+                className={`join-option-card ${selectedDate === opt.id ? "active" : ""}`}
+              >
+                <div className="join-option-date">{opt.label}</div>
+                <div className="join-option-votes">
+                  {opt.votes} {opt.votes === 1 ? "voto" : "votos"}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
 
       {/* Estado: Ya votó como invitado */}
       {guestVoteConfirmed ? (
@@ -100,8 +128,7 @@ export function JoinParcheView({ token }: JoinParcheViewProps) {
           <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
           <p className="font-bold text-sm">{MESSAGES.INVITATION.SUCCESS_GUEST_VOTE}</p>
           <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
-            Registrado para <strong>{guestName}</strong> en la opción{" "}
-            <strong>{confirmedOption === "sab-14" ? MESSAGES.SURVEYS.OPTION_SATURDAY : MESSAGES.SURVEYS.OPTION_SUNDAY}</strong>.
+            Registrado para <strong>{guestName}</strong> en la opción <strong>{confirmedOption}</strong>.
           </p>
         </div>
       ) : isAuthenticated ? (
@@ -121,7 +148,7 @@ export function JoinParcheView({ token }: JoinParcheViewProps) {
           </div>
 
           <Link
-            href={`/plan/paseo-playa`}
+            href={`/plan/${token}`}
             className="join-btn-vote"
           >
             <span>Confirmar y ver detalles del plan</span>
@@ -129,19 +156,9 @@ export function JoinParcheView({ token }: JoinParcheViewProps) {
           </Link>
         </div>
       ) : (
-        /* Caso B: Usuario NO AUTENTICADO (Flujo Híbrido: Invitado o Login con Retorno Inteligente) */
+        /* Caso B: Usuario NO AUTENTICADO */
         <div className="space-y-4">
-          {/* Opción 1: Entrar con 1 clic (Demo con Retorno Automático) */}
-          <button
-            type="button"
-            onClick={handleQuickJoin}
-            className="join-btn-demo"
-          >
-            <Zap className="w-4 h-4" />
-            <span>{MESSAGES.INVITATION.BTN_QUICK_JOIN}</span>
-          </button>
-
-          {/* Opción 2: Iniciar sesión con su cuenta existente (Deep Link) */}
+          {/* Iniciar sesión con su cuenta existente (Deep Link) */}
           <Link
             href={`/login?redirect=${encodeURIComponent(`/join/${token}`)}`}
             className="join-btn-login"

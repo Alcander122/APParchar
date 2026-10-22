@@ -9,6 +9,7 @@ interface PlanBudgetLocationPickerProps {
   onBudgetChange: (budget: number) => void;
   location: string;
   onLocationChange: (location: string) => void;
+  suggestions?: string[];
 }
 
 const BUDGET_PRESETS = [
@@ -19,7 +20,7 @@ const BUDGET_PRESETS = [
   { label: "$200.000", value: 200000 },
 ];
 
-const LOCATION_SUGGESTIONS = [
+const DEFAULT_LOCATION_SUGGESTIONS = [
   "Cabaña Vista al Mar (Rodadero)",
   "Restaurante Campestre",
   "Bar & Pub La 70",
@@ -32,6 +33,7 @@ export const PlanBudgetLocationPicker: React.FC<PlanBudgetLocationPickerProps> =
   onBudgetChange,
   location,
   onLocationChange,
+  suggestions = DEFAULT_LOCATION_SUGGESTIONS,
 }) => {
   const handlePresetClick = (val: number) => {
     onBudgetChange(val);
@@ -114,9 +116,9 @@ export const PlanBudgetLocationPicker: React.FC<PlanBudgetLocationPickerProps> =
           />
         </div>
 
-        {/* Sugerencias Rápidas de Ubicación */}
+        {/* Sugerencias Rápidas de Ubicación (desde Supabase: lugares_sugeridos) */}
         <div className="location-chips-row">
-          {LOCATION_SUGGESTIONS.map((sug) => (
+          {suggestions.map((sug) => (
             <button
               key={sug}
               type="button"

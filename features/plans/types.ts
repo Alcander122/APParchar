@@ -3,17 +3,21 @@
  */
 
 export type PlanCategory = "viaje" | "fiesta" | "concierto" | "comida" | "deporte" | "chill";
+export type PlanStatus = "voting" | "confirmed" | "history";
 
 export type AgeFilter = "todos" | "+18" | "familiar";
 export type AccessibilityFilter = "ninguna" | "silla_ruedas" | "baja_movilidad" | "pet_friendly";
 export type GenderFilter = "mixto" | "solo_mujeres" | "solo_hombres";
+
+export type FriendCircle = "intimo" | "cercano" | "comunidad";
+export type FriendFilterCircle = "todos" | FriendCircle;
 
 export interface Friend {
   id: string;
   name: string;
   role: string;
   avatar?: string;
-  circle: "intimo" | "cercano" | "comunidad";
+  circle: FriendCircle;
   streak: number;
 }
 

@@ -26,7 +26,7 @@ export const MESSAGES = {
     LOGIN_TITLE: "Bienvenido a",
     REGISTER_TITLE: "Únete a",
     REGISTER_SUBTITLE: "Arma planes, invita a tus amigos y no dejes morir los parches",
-    
+
     // Labels
     LABEL_FULL_NAME: "Nombre Completo",
     LABEL_EMAIL: "Correo electrónico",
@@ -37,7 +37,7 @@ export const MESSAGES = {
     PLACEHOLDER_FULL_NAME: "Ej. Camilo Gómez",
     PLACEHOLDER_EMAIL: "tu-correo@ejemplo.com",
     PLACEHOLDER_PASSWORD: "••••••••",
-    PLACEHOLDER_PASSWORD_HINT: "Mínimo 3 caracteres (Mock)",
+    PLACEHOLDER_PASSWORD_HINT: "Mínimo 6 caracteres",
 
     // Enlaces
     FORGOT_PASSWORD: "¿Olvidaste tu clave?",
@@ -65,6 +65,8 @@ export const MESSAGES = {
     ERROR_INVALID_CREDENTIALS: "Credenciales incorrectas. Verifica tu correo y contraseña.",
     ERROR_PASSWORD_SHORT: "La contraseña debe tener al menos 3 caracteres.",
     ERROR_OAUTH_FAILED: "No fue posible iniciar sesión con el proveedor externo.",
+    FEEDBACK_SUPABASE_NOT_CONFIGURED: "Configura tus credenciales reales en .env.local para activar Google OAuth con Supabase.",
+    ERROR_GOOGLE_AUTH: "Error al iniciar sesión con Google. Inténtalo de nuevo.",
     UNAUTHORIZED: "Debes iniciar sesión para acceder a esta pantalla.",
     INVITE_CONTEXT: "Inicia sesión o entra como demo para confirmar tu asistencia al parche.",
     SUCCESS_REGISTER: "¡Cuenta creada exitosamente! Bienvenido al parche.",
@@ -104,7 +106,7 @@ export const MESSAGES = {
     DASHBOARD_SUBTITLE: "Revisa tus parches en curso o crea una nueva propuesta con tu grupo.",
     BTN_NEW_PLAN: "Nuevo Parche",
     CREATE_PLAN_ARIA: "Crear nuevo parche",
-    
+
     // Columnas / Tabs Kanban (image_0.png)
     TABS: {
       VOTING: "En Votación",
@@ -167,6 +169,7 @@ export const MESSAGES = {
     TREE_TITLE: "Árbol de amigos",
     TREE_DESCRIPTION: "Visualiza las conexiones y parches en común con tus amistades.",
     REGISTERED_FRIENDS: "¿Quién se apunta? Amigos registrados",
+    EMPTY_LIST: "Aún no hay amigos registrados en la base de datos. ¡Invita a tu grupo para armar el parche!",
   },
 
   GAMIFICATION: {

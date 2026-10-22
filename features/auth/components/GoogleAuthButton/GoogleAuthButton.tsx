@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Loader2 } from "lucide-react";
 import "./GoogleAuthButton.css";
 import { MESSAGES } from "@/lib/constants/messages";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 interface GoogleAuthButtonProps {
   mode?: "login" | "register";
@@ -24,14 +25,45 @@ export function GoogleAuthButton({
       ? MESSAGES.AUTH.BTN_GOOGLE_REGISTER
       : MESSAGES.AUTH.BTN_GOOGLE_LOGIN;
 
-  const handleClick = () => {
+  const handleClick = async () => {
     setIsLoading(true);
-    // Maqueta funcional preparada para cuando se conecte la BD y OAuth provider
-    setTimeout(() => {
+
+    if (!isSupabaseConfigured()) {
       setIsLoading(false);
-      setFeedback("Pronto disponible al vincular la Base de Datos (PostgreSQL/Supabase)");
-      setTimeout(() => setFeedback(null), 4000);
-    }, 600);
+      setFeedback(MESSAGES.AUTH.FEEDBACK_SUPABASE_NOT_CONFIGURED);
+      setTimeout(() => setFeedback(null), 5000);
+      return;
+    }
+
+    try {
+      const supabase = createClient();
+      const origin = window.location.origin;
+      const destination = redirectTarget || "/";
+      const redirectUrl = `${origin}/callback?next=${encodeURIComponent(destination)}`;
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
+
+      if (error) {
+        setFeedback(error.message);
+        setIsLoading(false);
+        setTimeout(() => setFeedback(null), 5000);
+      }
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : MESSAGES.AUTH.ERROR_GOOGLE_AUTH;
+      setFeedback(errorMessage);
+      setIsLoading(false);
+      setTimeout(() => setFeedback(null), 5000);
+    }
   };
 
   return (
@@ -41,7 +73,7 @@ export function GoogleAuthButton({
         onClick={handleClick}
         disabled={isLoading}
         aria-label={label}
-        className="google-auth-button"
+        className="google-auth-button cursor-pointer"
       >
         {isLoading ? (
           <Loader2 className="w-5 h-5 animate-spin text-indigo-400 shrink-0" />

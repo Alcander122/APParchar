@@ -11,7 +11,9 @@ export async function updateSession(request: NextRequest) {
   });
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   // Si las credenciales aún no están configuradas (placeholder), permitimos el paso en desarrollo
   if (!supabaseUrl || !supabaseKey || supabaseUrl.includes("placeholder")) {
@@ -46,7 +48,10 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute =
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
-    pathname.startsWith("/callback");
+    pathname.startsWith("/callback") ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/join");
 
   // Si no está autenticado y no es ruta pública/auth, redirige al login
   if (!user && !isAuthRoute) {

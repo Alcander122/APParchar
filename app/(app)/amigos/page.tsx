@@ -2,19 +2,53 @@ import type { Metadata } from "next";
 import { Users, UserPlus, Flame, Network, Sparkles } from "lucide-react";
 import { MESSAGES } from "@/lib/constants/messages";
 
+import { createClient, isSupabaseConfiguredServer } from "@/lib/supabase/server";
+
 export const metadata: Metadata = {
   title: `${MESSAGES.FRIENDS.TITLE} | ${MESSAGES.BRAND.NAME}`,
   description: MESSAGES.FRIENDS.SUBTITLE,
 };
 
-export default function AmigosPage() {
-  const friendsList = [
-    { name: "Camilo Gómez", role: "Organizador", streak: 5 },
-    { name: "Laura Restrepo", role: "Parcheadora", streak: 4 },
-    { name: "Mateo Ortiz", role: "Tesorero", streak: 6 },
-    { name: "Valentina Ríos", role: "Parcheadora", streak: 3 },
-    { name: "Sebastián Peña", role: "Invitado", streak: 2 },
-  ];
+export default async function AmigosPage() {
+  let friendsList: Array<{ id: string; name: string; role: string; streak: number; avatar?: string | null }> = [];
+  let currentUserStreak = 1;
+
+  if (isSupabaseConfiguredServer()) {
+    try {
+      const supabase = await createClient();
+
+      // Consultar usuario actual para su racha real de la BD
+      const { data: authData } = await supabase.auth.getUser();
+      if (authData?.user?.id) {
+        const { data: miPerfil } = await supabase
+          .from("perfiles")
+          .select("streak")
+          .eq("id", authData.user.id)
+          .single();
+        if (miPerfil?.streak) {
+          currentUserStreak = miPerfil.streak;
+        }
+      }
+
+      // Consultar los perfiles de amigos registrados en la base de datos
+      const { data: perfiles, error } = await supabase
+        .from("perfiles")
+        .select("id, full_name, username, role, streak, avatar_url")
+        .order("streak", { ascending: false });
+
+      if (!error && perfiles) {
+        friendsList = perfiles.map((p) => ({
+          id: p.id,
+          name: p.full_name || p.username || "Parcheador",
+          role: p.role === "admin" ? "Organizador" : "Parcheador",
+          streak: p.streak || 1,
+          avatar: p.avatar_url,
+        }));
+      }
+    } catch (err) {
+      console.error("Error al cargar amigos desde la BD:", err);
+    }
+  }
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -76,7 +110,7 @@ export default function AmigosPage() {
               className="text-xl font-bold"
               style={{ color: "var(--color-text-primary)" }}
             >
-              {MESSAGES.GAMIFICATION.STREAK_SUBTITLE}
+              ¡Tienes {currentUserStreak} {currentUserStreak === 1 ? "parche" : "parches"} seguidos! 🔥
             </h3>
             <p
               className="text-xs mt-2"
@@ -126,51 +160,69 @@ export default function AmigosPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {friendsList.map((friend) => (
-              <div
-                key={friend.name}
-                className="p-3.5 rounded-2xl border flex items-center justify-between transition-all hover:scale-[1.01]"
-                style={{
-                  backgroundColor: "var(--color-surface-subtle)",
-                  borderColor: "var(--color-border)",
-                }}
+          {friendsList.length === 0 ? (
+            <div
+              className="p-8 text-center rounded-2xl border border-dashed flex flex-col items-center justify-center gap-2"
+              style={{
+                borderColor: "var(--color-border)",
+                backgroundColor: "var(--color-surface-subtle)",
+              }}
+            >
+              <Users className="w-8 h-8 text-orange-400 opacity-60" />
+              <p
+                className="text-sm font-semibold"
+                style={{ color: "var(--color-text-primary)" }}
               >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm"
-                    style={{
-                      background: "linear-gradient(135deg, var(--color-brand-purple), var(--color-brand-orange))",
-                    }}
-                  >
-                    {friend.name.slice(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <p
-                      className="font-bold text-sm"
-                      style={{ color: "var(--color-text-primary)" }}
-                    >
-                      {friend.name}
-                    </p>
-                    <p
-                      className="text-xs"
-                      style={{ color: "var(--color-text-muted)" }}
-                    >
-                      {friend.role}
-                    </p>
-                  </div>
-                </div>
-
+                {MESSAGES.FRIENDS.EMPTY_LIST}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {friendsList.map((friend) => (
                 <div
-                  className="flex items-center gap-1 text-xs font-bold"
-                  style={{ color: "var(--color-brand-orange)" }}
+                  key={friend.name}
+                  className="p-3.5 rounded-2xl border flex items-center justify-between transition-all hover:scale-[1.01]"
+                  style={{
+                    backgroundColor: "var(--color-surface-subtle)",
+                    borderColor: "var(--color-border)",
+                  }}
                 >
-                  <Flame className="w-3.5 h-3.5 fill-orange-500" />
-                  <span>{friend.streak}</span>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm"
+                      style={{
+                        background: "linear-gradient(135deg, var(--color-brand-purple), var(--color-brand-orange))",
+                      }}
+                    >
+                      {friend.name.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <p
+                        className="font-bold text-sm"
+                        style={{ color: "var(--color-text-primary)" }}
+                      >
+                        {friend.name}
+                      </p>
+                      <p
+                        className="text-xs"
+                        style={{ color: "var(--color-text-muted)" }}
+                      >
+                        {friend.role}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    className="flex items-center gap-1 text-xs font-bold"
+                    style={{ color: "var(--color-brand-orange)" }}
+                  >
+                    <Flame className="w-3.5 h-3.5 fill-orange-500" />
+                    <span>{friend.streak}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

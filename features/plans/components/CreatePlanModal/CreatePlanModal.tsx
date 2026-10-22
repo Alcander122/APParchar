@@ -11,15 +11,40 @@ import {
   ArrowLeft,
   Plus,
   Trash2,
+  Loader2,
 } from "lucide-react";
+import * as Icons from "lucide-react";
 import { PlanCategory, AgeFilter, AccessibilityFilter, GenderFilter } from "../../types";
-import { COVER_PRESETS } from "../../mockData";
 import { FriendsSelector } from "../FriendsSelector/FriendsSelector";
 import { AgendaConflictAlert } from "../AgendaConflictAlert/AgendaConflictAlert";
 import { AgendaCalendarPicker } from "../AgendaCalendarPicker/AgendaCalendarPicker";
 import { PlanBudgetLocationPicker } from "../PlanBudgetLocationPicker/PlanBudgetLocationPicker";
 import { useCreatePlanModal } from "./useCreatePlanModal";
 import "./CreatePlanModal.css";
+
+/**
+ * Renderiza el icono de forma 100% dinámica según el nombre o emoji guardado en la BD (categorias_plan.icono)
+ * Soporta cualquier icono de Lucide (ej: Palmtree, PartyPopper, Music, Gamepad2, Beer, Film, etc.) o emojis directos.
+ */
+function renderCategoryIcon(iconName?: string) {
+  if (!iconName) {
+    return <Icons.Sparkles className="w-5 h-5 text-indigo-400" />;
+  }
+
+  // 1. Si en la BD se guardó un emoji (ej: ✈️, 🎉, ⚽, ☕)
+  if (iconName.length <= 2) {
+    return <span className="text-base">{iconName}</span>;
+  }
+
+  // 2. Resuelve el componente de Lucide dinámicamente por el nombre registrado en Supabase
+  const iconsMap = Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
+  const normalizedKey = iconName.trim();
+  const pascalKey = normalizedKey.charAt(0).toUpperCase() + normalizedKey.slice(1);
+
+  const IconComponent = iconsMap[normalizedKey] || iconsMap[pascalKey] || Icons.Sparkles;
+
+  return <IconComponent className="w-5 h-5 text-amber-400" />;
+}
 
 export function CreatePlanModal() {
   const {
@@ -69,6 +94,11 @@ export function CreatePlanModal() {
     handleSubmit,
     isCreateModalOpen,
     closeCreateModal,
+    isSubmitting,
+    categoriesList,
+    coverPresetsMap,
+    filtersCatalog,
+    suggestedLocations,
   } = useCreatePlanModal();
 
   if (!isCreateModalOpen) return null;
@@ -133,36 +163,31 @@ export function CreatePlanModal() {
                 />
               </div>
 
-              {/* Categorías */}
+              {/* Categorías (desde Supabase: categorias_plan) */}
               <div>
                 <label className="create-plan-label">Categoría del Evento</label>
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  {(
-                    [
-                      { id: "viaje", label: "Viaje", icon: "✈️" },
-                      { id: "fiesta", label: "Fiesta", icon: "🎉" },
-                      { id: "concierto", label: "Concierto", icon: "🎸" },
-                      { id: "comida", label: "Comida", icon: "🍔" },
-                      { id: "deporte", label: "Deporte", icon: "⚽" },
-                      { id: "chill", label: "Chill", icon: "☕" },
-                    ] as const
-                  ).map((cat) => (
+                  {categoriesList.map((cat) => (
                     <button
                       key={cat.id}
                       type="button"
-                      onClick={() => handleCategoryChange(cat.id)}
+                      onClick={() => handleCategoryChange(cat.id as PlanCategory)}
                       className={`create-category-btn ${
                         category === cat.id ? "active" : ""
                       }`}
                     >
-                      <span className="text-base">{cat.icon}</span>
-                      <span>{cat.label}</span>
+                      <div className="flex items-center justify-center h-6">
+                        {renderCategoryIcon(cat.icon || "")}
+                      </div>
+                      <span className="text-[11px] leading-tight text-center font-medium mt-1">
+                        {cat.label}
+                      </span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Carga de Portada / Presets */}
+              {/* Carga de Portada / Presets (desde Supabase: categorias_plan.portadas_preset) */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="create-plan-label m-0">Imagen de Portada</label>
@@ -197,7 +222,7 @@ export function CreatePlanModal() {
 
                 {/* Presets rápidos */}
                 <div className="flex gap-2 mt-2 overflow-x-auto pb-1">
-                  {COVER_PRESETS[category].map((presetUrl, idx) => (
+                  {(coverPresetsMap[category] || []).map((presetUrl, idx) => (
                     <button
                       key={idx}
                       type="button"
@@ -222,73 +247,70 @@ export function CreatePlanModal() {
              =================================================== */}
           {step === 2 && (
             <div className="space-y-4">
-              {/* Presupuesto por Persona y Ubicación Tentativa */}
+              {/* Presupuesto por Persona y Ubicación Tentativa (Lugares desde Supabase: lugares_sugeridos) */}
               <PlanBudgetLocationPicker
                 budget={budgetEstimated}
                 onBudgetChange={setBudgetEstimated}
                 location={tentativeLocation}
                 onLocationChange={setTentativeLocation}
+                suggestions={suggestedLocations.map((l) => l.name)}
               />
 
+              {/* Rango de Edad (desde Supabase: catalogo_filtros tipo 'edad') */}
               <div>
                 <label className="create-plan-label">Rango de Edad</label>
                 <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: "todos", label: "Para Todos", desc: "Apto para todas las edades" },
-                    { id: "+18", label: "+18 Años", desc: "Planes nocturnos o licor" },
-                    { id: "familiar", label: "Familiar", desc: "Niños y adultos bienvenidos" },
-                  ].map((item) => (
+                  {filtersCatalog.edad.map((item) => (
                     <button
-                      key={item.id}
+                      key={item.clave}
                       type="button"
-                      onClick={() => setAgeFilter(item.id as AgeFilter)}
-                      className={`create-audience-card ${ageFilter === item.id ? "active" : ""}`}
+                      onClick={() => setAgeFilter(item.clave as AgeFilter)}
+                      className={`create-audience-card ${ageFilter === item.clave ? "active" : ""}`}
                     >
-                      <span className="font-bold text-xs">{item.label}</span>
-                      <span className="text-[10px] text-zinc-400">{item.desc}</span>
+                      <span className="font-bold text-xs">{item.etiqueta}</span>
+                      {item.descripcion && (
+                        <span className="text-[10px] text-zinc-400">{item.descripcion}</span>
+                      )}
                     </button>
                   ))}
                 </div>
               </div>
 
+              {/* Accesibilidad (desde Supabase: catalogo_filtros tipo 'accesibilidad') */}
               <div>
                 <label className="create-plan-label">Condiciones de Accesibilidad</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { id: "ninguna", label: "Estándar", desc: "Sin requerimientos especiales" },
-                    { id: "silla_ruedas", label: "♿ Silla de Ruedas", desc: "Rampas y acceso plano" },
-                    { id: "baja_movilidad", label: "Baja Intensidad", desc: "Poca caminata o esfuerzo" },
-                    { id: "pet_friendly", label: "🐾 Pet Friendly", desc: "Mascotas permitidas" },
-                  ].map((item) => (
+                  {filtersCatalog.accesibilidad.map((item) => (
                     <button
-                      key={item.id}
+                      key={item.clave}
                       type="button"
-                      onClick={() => setAccessibilityFilter(item.id as AccessibilityFilter)}
-                      className={`create-audience-card ${accessibilityFilter === item.id ? "active" : ""}`}
+                      onClick={() => setAccessibilityFilter(item.clave as AccessibilityFilter)}
+                      className={`create-audience-card ${accessibilityFilter === item.clave ? "active" : ""}`}
                     >
-                      <span className="font-bold text-xs">{item.label}</span>
-                      <span className="text-[10px] text-zinc-400">{item.desc}</span>
+                      <span className="font-bold text-xs">{item.etiqueta}</span>
+                      {item.descripcion && (
+                        <span className="text-[10px] text-zinc-400">{item.descripcion}</span>
+                      )}
                     </button>
                   ))}
                 </div>
               </div>
 
+              {/* Género (desde Supabase: catalogo_filtros tipo 'genero') */}
               <div>
                 <label className="create-plan-label">Filtro de Género</label>
                 <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: "mixto", label: "Mixto", icon: "👥" },
-                    { id: "solo_mujeres", label: "Solo Chicas", icon: "👩" },
-                    { id: "solo_hombres", label: "Solo Chicos", icon: "👨" },
-                  ].map((item) => (
+                  {filtersCatalog.genero.map((item) => (
                     <button
-                      key={item.id}
+                      key={item.clave}
                       type="button"
-                      onClick={() => setGenderFilter(item.id as GenderFilter)}
-                      className={`create-audience-card ${genderFilter === item.id ? "active" : ""}`}
+                      onClick={() => setGenderFilter(item.clave as GenderFilter)}
+                      className={`create-audience-card ${genderFilter === item.clave ? "active" : ""}`}
                     >
-                      <span className="text-base">{item.icon}</span>
-                      <span className="font-bold text-xs">{item.label}</span>
+                      <span className="font-bold text-xs">{item.etiqueta}</span>
+                      {item.descripcion && (
+                        <span className="text-[10px] text-zinc-400">{item.descripcion}</span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -497,8 +519,17 @@ export function CreatePlanModal() {
                 Siguiente <ArrowRight className="w-4 h-4" />
               </button>
             ) : (
-              <button type="submit" className="create-plan-btn-submit">
-                <Sparkles className="w-4 h-4" /> ¡Lanzar Parche!
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="create-plan-btn-submit flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4" />
+                )}
+                <span>{isSubmitting ? "Lanzando Parche..." : "¡Lanzar Parche!"}</span>
               </button>
             )}
           </div>

@@ -1,8 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, AlertTriangle, CheckCircle } from "lucide-react";
 import { Plan, Friend } from "../../types";
+import {
+  MONTHS_LONG,
+  MONTHS_SHORT,
+  WEEKDAY_SHORT_NAMES,
+  formatDateToLabel,
+} from "@/lib/utils/date";
 import "./AgendaCalendarPicker.css";
 
 interface AgendaCalendarPickerProps {
@@ -12,27 +18,27 @@ interface AgendaCalendarPickerProps {
   selectedFriends: Friend[];
 }
 
-const MONTH_NAMES = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-];
-
-const WEEKDAY_NAMES = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-
 export function AgendaCalendarPicker({
   selectedDateIso,
   onSelectDate,
   existingPlans,
   selectedFriends,
 }: AgendaCalendarPickerProps) {
-  // Parsear fecha inicial o usar Noviembre 2026 (mes del mock)
-  const initialDate = selectedDateIso ? new Date(selectedDateIso) : new Date(2026, 10, 28);
-  const [currentYear, setCurrentYear] = useState(
-    isNaN(initialDate.getFullYear()) ? 2026 : initialDate.getFullYear()
-  );
-  const [currentMonth, setCurrentMonth] = useState(
-    isNaN(initialDate.getMonth()) ? 10 : initialDate.getMonth()
-  );
+  // Inicializar con valores fijos neutros para SSR y sincronizar en el cliente
+  const [currentYear, setCurrentYear] = useState(2026);
+  const [currentMonth, setCurrentMonth] = useState(0);
+
+  useEffect(() => {
+    const now = new Date();
+    const initialDate = selectedDateIso
+      ? new Date(selectedDateIso.includes("T") ? selectedDateIso : `${selectedDateIso}T00:00:00`)
+      : now;
+
+    if (!isNaN(initialDate.getFullYear())) {
+      setCurrentYear(initialDate.getFullYear());
+      setCurrentMonth(initialDate.getMonth());
+    }
+  }, [selectedDateIso]);
 
   const prevMonth = () => {
     if (currentMonth === 0) {
@@ -66,22 +72,21 @@ export function AgendaCalendarPicker({
   // Función para formatear etiqueta legible en español
   const formatToLabel = (day: number) => {
     const d = new Date(currentYear, currentMonth, day);
-    const dayName = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"][d.getDay()];
-    const monthShort = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"][currentMonth];
-    return `${dayName} ${day} ${monthShort}`;
+    return formatDateToLabel(d);
   };
 
   // Detectar si un día tiene conflicto con los amigos seleccionados
   const getDayConflict = (day: number) => {
     const friendIds = selectedFriends.map((f) => f.id);
     const dayRegex = new RegExp(`\\b${day}\\b`);
+    const currentMonthShort = MONTHS_SHORT[currentMonth]?.toLowerCase() || "";
 
     for (const plan of existingPlans) {
       const planDate = plan.date.toLowerCase();
-      // Si el plan coincide exactamente con este día
+      // Si el plan coincide con este día y este mes
       if (
         dayRegex.test(planDate) &&
-        (planDate.includes("nov") || currentMonth === 10)
+        (currentMonthShort ? planDate.includes(currentMonthShort) : true)
       ) {
         const busyFriends = plan.invitedFriends.filter((f) =>
           friendIds.includes(f.id)
@@ -112,9 +117,7 @@ export function AgendaCalendarPicker({
       setCurrentYear(y);
       setCurrentMonth(m - 1);
       const dateObj = new Date(y, m - 1, d);
-      const dayName = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"][dateObj.getDay()];
-      const monthShort = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"][m - 1];
-      onSelectDate(val, `${dayName} ${d} ${monthShort}`);
+      onSelectDate(val, formatDateToLabel(dateObj));
     }
   };
 
@@ -125,7 +128,7 @@ export function AgendaCalendarPicker({
         <div className="flex items-center gap-2">
           <CalendarIcon className="w-4 h-4 text-amber-500" />
           <span className="agenda-calendar-month-title">
-            {MONTH_NAMES[currentMonth]} {currentYear}
+            {MONTHS_LONG[currentMonth]} {currentYear}
           </span>
         </div>
 
@@ -160,7 +163,7 @@ export function AgendaCalendarPicker({
 
       {/* Días de la Semana */}
       <div className="agenda-weekdays-grid">
-        {WEEKDAY_NAMES.map((name) => (
+        {WEEKDAY_SHORT_NAMES.map((name) => (
           <span key={name} className="agenda-weekday-label">
             {name}
           </span>

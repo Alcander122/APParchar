@@ -36,7 +36,14 @@ export function PlanDetailView({ planId }: PlanDetailViewProps) {
     voteOption,
     addVoteOption,
     closeSurvey,
+    vacaDetails,
+    isVacaLoading,
+    recordAporte,
   } = usePlanDetailView({ planId });
+
+  const [aporteMonto, setAporteMonto] = React.useState<number>(50000);
+  const [aporteNota, setAporteNota] = React.useState<string>("");
+  const [isSubmittingAporte, setIsSubmittingAporte] = React.useState(false);
 
   if (!plan) {
     return (
@@ -227,18 +234,140 @@ export function PlanDetailView({ planId }: PlanDetailViewProps) {
             </div>
           )}
 
-          {/* TAB 3: Vaca & Fondos */}
+          {/* TAB 3: Vaca & Fondos (Conectado 100% a Supabase) */}
           {activeTab === "funds" && (
-            <div className="plan-funds-box space-y-3">
-              <DollarSign className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mx-auto" />
-              <h3 className="font-bold text-base" style={{ color: "var(--text-primary)" }}>Vaca del Parche</h3>
-              <p className="text-xs max-w-md mx-auto" style={{ color: "var(--text-secondary)" }}>
-                Presupuesto meta estimado de <strong style={{ color: "var(--text-primary)" }}>${plan.budgetEstimated?.toLocaleString("es-CO")} COP</strong> por cada uno de los {plan.invitedFriends.length} parcheadores.
-              </p>
-              <div className="pt-2">
-                <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/20">
-                  Próximamente: Integración de pagos con Nequi / PSE
-                </span>
+            <div className="space-y-6">
+              <div className="plan-funds-box space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-6 h-6 text-emerald-500" />
+                    <h3 className="font-bold text-base" style={{ color: "var(--text-primary)" }}>
+                      Vaca del Parche
+                    </h3>
+                  </div>
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                    {Math.min(
+                      100,
+                      Math.round(
+                        ((vacaDetails?.currentAmount || 0) /
+                          (vacaDetails?.targetAmount || plan.budgetEstimated || 1)) *
+                          100
+                      )
+                    )}
+                    % recaudado
+                  </span>
+                </div>
+
+                {/* Monto Recaudado vs Meta */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span style={{ color: "var(--text-secondary)" }}>Total Recaudado:</span>
+                    <span className="font-bold text-emerald-500 font-mono">
+                      ${(vacaDetails?.currentAmount || 0).toLocaleString("es-CO")} COP
+                    </span>
+                  </div>
+
+                  {/* Barra de Progreso */}
+                  <div className="w-full h-3 rounded-full bg-zinc-800 overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-500 to-amber-500 transition-all duration-500"
+                      style={{
+                        width: `${Math.min(
+                          100,
+                          Math.round(
+                            ((vacaDetails?.currentAmount || 0) /
+                              (vacaDetails?.targetAmount || plan.budgetEstimated || 1)) *
+                              100
+                          )
+                        )}%`,
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex justify-between text-[11px]" style={{ color: "var(--text-muted)" }}>
+                    <span>Meta: ${(vacaDetails?.targetAmount || plan.budgetEstimated || 0).toLocaleString("es-CO")} COP</span>
+                    <span>{plan.invitedFriends.length} miembros</span>
+                  </div>
+                </div>
+
+                {/* Formulario rápido para registrar un aporte a la BD */}
+                <div className="pt-4 border-t border-white/10 space-y-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-secondary)" }}>
+                    Registrar Aporte a la Vaca
+                  </h4>
+
+                  <div className="flex flex-wrap gap-2">
+                    {[20000, 50000, 100000].map((monto) => (
+                      <button
+                        key={monto}
+                        type="button"
+                        onClick={() => setAporteMonto(monto)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                          aporteMonto === monto
+                            ? "bg-emerald-600 text-white border-emerald-500"
+                            : "bg-zinc-800 text-zinc-300 border-zinc-700 hover:bg-zinc-700"
+                        }`}
+                      >
+                        ${monto.toLocaleString("es-CO")}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Nota (ej. Transferencia Nequi)"
+                      value={aporteNota}
+                      onChange={(e) => setAporteNota(e.target.value)}
+                      className="flex-1 px-3 py-2 rounded-xl text-xs bg-zinc-900 border border-zinc-700 text-white placeholder-zinc-500"
+                    />
+                    <button
+                      type="button"
+                      disabled={isSubmittingAporte}
+                      onClick={async () => {
+                        setIsSubmittingAporte(true);
+                        await recordAporte(aporteMonto, aporteNota);
+                        setAporteNota("");
+                        setIsSubmittingAporte(false);
+                      }}
+                      className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      {isSubmittingAporte ? "Registrando..." : "Aportar"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Historial de Aportes Reales de la BD */}
+                <div className="pt-4 border-t border-white/10 space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-secondary)" }}>
+                    Historial de Aportes ({vacaDetails?.aportes.length || 0})
+                  </h4>
+
+                  {(!vacaDetails?.aportes || vacaDetails.aportes.length === 0) ? (
+                    <p className="text-xs italic py-2" style={{ color: "var(--text-muted)" }}>
+                      Aún no hay aportes registrados en la base de datos para este parche.
+                    </p>
+                  ) : (
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {vacaDetails.aportes.map((aporte) => (
+                        <div
+                          key={aporte.id}
+                          className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 flex items-center justify-between text-xs"
+                        >
+                          <div>
+                            <p className="font-bold text-white">{aporte.userName}</p>
+                            {aporte.note && (
+                              <p className="text-[11px] text-zinc-400">{aporte.note}</p>
+                            )}
+                          </div>
+                          <span className="font-bold text-emerald-400 font-mono">
+                            +${aporte.amount.toLocaleString("es-CO")}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}

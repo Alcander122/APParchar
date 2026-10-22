@@ -11,7 +11,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { VoteOption, PlanSurvey } from "../../types";
-import { LOCATION_PRESETS } from "../../mockData";
 import { useSurveySection } from "./useSurveySection";
 import "./SurveySection.css";
 
@@ -41,6 +40,7 @@ export function SurveySection({
     setNewSublabel,
     selectedPhoto,
     setSelectedPhoto,
+    suggestedLocations,
     currentUser,
     winningDate,
     winningLocation,
@@ -281,10 +281,10 @@ export function SurveySection({
               {activeTab === "locations" && (
                 <div>
                   <label className="text-xs font-semibold text-zinc-300 block mb-1.5">
-                    Selecciona una Foto de Referencia
+                    Selecciona una Foto de Referencia (Lugares Sugeridos de Supabase)
                   </label>
                   <div className="grid grid-cols-2 gap-2">
-                    {LOCATION_PRESETS.map((preset, idx) => (
+                    {suggestedLocations.map((preset, idx) => (
                       <button
                         key={idx}
                         type="button"

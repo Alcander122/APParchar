@@ -31,7 +31,13 @@ export function Avatar({ src, name, size = "md", className }: AvatarProps) {
       )}
     >
       {src ? (
-        <Image src={src} alt={name || "Avatar"} fill className="object-cover" />
+        <Image
+          src={src}
+          alt={name || "Avatar"}
+          fill
+          className="object-cover"
+          unoptimized={src.startsWith("http") || src.startsWith("blob:")}
+        />
       ) : (
         <span>{initials}</span>
       )}
