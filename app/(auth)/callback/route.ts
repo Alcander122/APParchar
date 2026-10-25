@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -8,8 +9,29 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error && data?.user) {
+      const cookieStore = await cookies();
+      cookieStore.set(
+        "apparchar_session",
+        JSON.stringify({
+          id: data.user.id,
+          email: data.user.email || "",
+          name:
+            data.user.user_metadata?.full_name ||
+            data.user.user_metadata?.name ||
+            data.user.email?.split("@")[0] ||
+            "Usuario Parche",
+          role: data.user.user_metadata?.role || "user",
+          authenticatedAt: new Date().toISOString(),
+        }),
+        {
+          path: "/",
+          httpOnly: true,
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7,
+        }
+      );
       return NextResponse.redirect(`${origin}${next}`);
     }
   }

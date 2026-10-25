@@ -169,6 +169,12 @@ export async function signOutAction() {
   }
 
   const cookieStore = await cookies();
+  const allCookies = cookieStore.getAll();
+  allCookies.forEach((c) => {
+    if (c.name.startsWith("sb-") || c.name.startsWith("apparchar_")) {
+      cookieStore.delete(c.name);
+    }
+  });
   cookieStore.delete("apparchar_session");
   revalidatePath("/", "layout");
   redirect("/login");

@@ -25,8 +25,15 @@ export function useLoginForm() {
   const isUnauthorized = reason === "unauthorized";
   const isInviteFlow = redirectTarget.startsWith("/join") || redirectTarget.startsWith("/invite");
 
+  const oauthError = searchParams.get("error");
+  const effectiveError =
+    state?.error ||
+    (oauthError === "auth-failed"
+      ? "No se pudo autenticar con Google. Verifica que la URL esté autorizada en Google Cloud y Supabase."
+      : null);
+
   return {
-    state,
+    state: { ...state, error: effectiveError },
     formAction,
     isPending,
     showPassword,
