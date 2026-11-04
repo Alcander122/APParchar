@@ -118,9 +118,9 @@ export const PlanBudgetLocationPicker: React.FC<PlanBudgetLocationPickerProps> =
 
         {/* Sugerencias Rápidas de Ubicación (desde Supabase: lugares_sugeridos) */}
         <div className="location-chips-row">
-          {suggestions.map((sug) => (
+          {Array.from(new Set(suggestions)).map((sug, idx) => (
             <button
-              key={sug}
+              key={`${sug}-${idx}`}
               type="button"
               onClick={() => onLocationChange(sug)}
               className="location-chip-btn"

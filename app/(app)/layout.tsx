@@ -1,15 +1,34 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { connection } from "next/server";
+import { createClient, isSupabaseConfiguredServer } from "@/lib/supabase/server";
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { FabCreatePlan } from "@/components/layout/FabCreatePlan";
 import { InteractivePartyBackground } from "@/components/layout/InteractivePartyBackground";
 import { PlansProvider, CreatePlanModal } from "@/features/plans";
+import { PendingFriendInviteSync } from "@/features/friends";
 
-export default function AppLayout({
+export const instant = false;
+
+export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await connection();
+
+  if (isSupabaseConfiguredServer()) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      redirect("/login");
+    }
+  }
+
   return (
     <PlansProvider>
       <div
@@ -34,6 +53,10 @@ export default function AppLayout({
           </Suspense>
           {/* Modal de Creación de Parche con Pasos */}
           <CreatePlanModal />
+          {/* Sincronizador de invitación de amistad tras registro/onboarding */}
+          <Suspense fallback={null}>
+            <PendingFriendInviteSync />
+          </Suspense>
         </div>
       </div>
     </PlansProvider>

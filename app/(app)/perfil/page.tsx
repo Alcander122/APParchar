@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { connection } from "next/server";
 import { User, Shield, LogOut, Flame } from "lucide-react";
 import { signOutAction } from "@/features/auth/actions";
 import { MESSAGES } from "@/lib/constants/messages";
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
   title: `${MESSAGES.NAV.PERFIL} | ${MESSAGES.BRAND.NAME}`,
 };
 
+export const instant = false;
+
 export default async function PerfilPage() {
+  await connection();
   let userName = "Parcheador";
   let userEmail = "Invitado";
   let userRole = "Parcheador";

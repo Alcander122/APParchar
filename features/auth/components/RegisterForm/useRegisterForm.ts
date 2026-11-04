@@ -7,6 +7,8 @@ import { registerWithEmail, type AuthState } from "../../actions";
 export function useRegisterForm() {
   const searchParams = useSearchParams();
   const redirectTarget = searchParams.get("redirect") || "";
+  const isInviteFlow =
+    redirectTarget.startsWith("/join") || redirectTarget.startsWith("/invite");
 
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(
     registerWithEmail,
@@ -18,5 +20,6 @@ export function useRegisterForm() {
     formAction,
     isPending,
     redirectTarget,
+    isInviteFlow,
   };
 }

@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Calendar, Users, PlusCircle, CheckCircle2, Clock, MapPin, Tag, Shield } from "lucide-react";
+import { Sparkles, Calendar, PlusCircle, CheckCircle2, Clock } from "lucide-react";
 import { MESSAGES } from "@/lib/constants/messages";
-import Link from "next/link";
 import { usePlans, PlanCard } from "@/features/plans";
 
 export default function DashboardPage() {

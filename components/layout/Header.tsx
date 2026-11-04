@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Bell, User, LogOut } from "lucide-react";
-import { signOutAction } from "@/features/auth/actions";
+import { Bell, User, Users, LayoutDashboard } from "lucide-react";
+import { SignOutButton } from "./SignOutButton";
 import { MESSAGES } from "@/lib/constants/messages";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 
@@ -36,8 +36,50 @@ export function Header() {
           </span>
         </Link>
 
+        {/* Navegación Principal en Escritorio */}
+        <nav className="hidden md:flex items-center gap-1.5">
+          <Link
+            href="/"
+            className="px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-colors border border-transparent hover:border-white/10"
+            style={{
+              backgroundColor: "var(--color-surface-subtle)",
+              color: "var(--color-text-primary)",
+            }}
+          >
+            <LayoutDashboard className="w-4 h-4 text-indigo-400" />
+            <span>{MESSAGES.NAV.PLANES}</span>
+          </Link>
+
+          <Link
+            href="/amigos"
+            className="px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-colors border"
+            style={{
+              backgroundColor: "var(--color-status-warning-bg)",
+              borderColor: "var(--color-brand-orange)",
+              color: "var(--color-brand-orange)",
+            }}
+          >
+            <Users className="w-4 h-4" />
+            <span>{MESSAGES.FRIENDS.TREE_TITLE}</span>
+          </Link>
+        </nav>
+
         {/* Acciones de Cabecera */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Acceso rápido a Amigos (visible también en móvil/tablet en el header) */}
+          <Link
+            href="/amigos"
+            aria-label={MESSAGES.NAV.AMIGOS}
+            title={MESSAGES.FRIENDS.TREE_TITLE}
+            className="md:hidden p-2 rounded-xl transition-colors border"
+            style={{
+              backgroundColor: "var(--color-status-warning-bg)",
+              borderColor: "var(--color-brand-orange)",
+              color: "var(--color-brand-orange)",
+            }}
+          >
+            <Users className="w-4 h-4" />
+          </Link>
           {/* Alternador de Tema Claro / Oscuro */}
           <ThemeToggle />
 
@@ -69,15 +111,7 @@ export function Header() {
           </Link>
 
           {/* Botón Salir */}
-          <form action={signOutAction}>
-            <button
-              type="submit"
-              className="text-xs font-medium px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 border border-red-500/20 text-red-400 hover:bg-red-500/10"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{MESSAGES.AUTH.BTN_LOGOUT_SHORT}</span>
-            </button>
-          </form>
+          <SignOutButton />
         </div>
       </div>
     </header>

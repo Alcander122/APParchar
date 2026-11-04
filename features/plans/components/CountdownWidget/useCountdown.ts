@@ -33,11 +33,16 @@ interface UseCountdownProps {
 }
 
 export function useCountdown({ expiresAt, isClosed, onSimulateExpire }: UseCountdownProps) {
-  const [timeLeft, setTimeLeft] = useState<TimeRemaining>(() =>
-    calculateTimeRemaining(expiresAt)
-  );
+  const [timeLeft, setTimeLeft] = useState<TimeRemaining>({
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    totalMs: 0,
+    isExpired: false,
+  });
 
   useEffect(() => {
+    setTimeLeft(calculateTimeRemaining(expiresAt));
     if (isClosed) return;
 
     const interval = setInterval(() => {

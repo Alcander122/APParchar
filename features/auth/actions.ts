@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createClient, isSupabaseConfiguredServer } from "@/lib/supabase/server";
+import { MESSAGES } from "@/lib/constants/messages";
 
 export interface AuthState {
   error?: string | null;
@@ -23,7 +24,7 @@ export async function loginWithEmail(
   const redirectTarget = formData.get("redirect") as string;
 
   if (!email || !password) {
-    return { error: "Por favor ingresa tu correo y contraseña." };
+    return { error: MESSAGES.AUTH.ERROR_REQUIRED_FIELDS };
   }
 
   if (!isSupabaseConfiguredServer()) {
@@ -39,6 +40,13 @@ export async function loginWithEmail(
   });
 
   if (error) {
+    const msg = error.message.toLowerCase();
+    if (msg.includes("invalid login credentials") || msg.includes("invalid_credentials")) {
+      return { error: MESSAGES.AUTH.ERROR_INVALID_CREDENTIALS };
+    }
+    if (msg.includes("email not confirmed")) {
+      return { error: "Por favor confirma tu correo electrónico antes de ingresar." };
+    }
     return { error: error.message };
   }
 
@@ -82,7 +90,7 @@ export async function registerWithEmail(
   const redirectTarget = formData.get("redirect") as string;
 
   if (!fullName || !email || !password) {
-    return { error: "Por favor completa todos los campos." };
+    return { error: MESSAGES.AUTH.ERROR_REQUIRED_FIELDS };
   }
 
   if (isSupabaseConfiguredServer()) {
@@ -99,6 +107,13 @@ export async function registerWithEmail(
     });
 
     if (error) {
+      const msg = error.message.toLowerCase();
+      if (msg.includes("already registered")) {
+        return { error: "Ya existe una cuenta registrada con este correo electrónico." };
+      }
+      if (msg.includes("at least") && msg.includes("character")) {
+        return { error: "La contraseña debe tener al menos 6 caracteres." };
+      }
       return { error: error.message };
     }
 
@@ -162,7 +177,7 @@ export async function signOutAction() {
   if (isSupabaseConfiguredServer()) {
     try {
       const supabase = await createClient();
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: "global" });
     } catch {
       // Ignorar errores al cerrar sesión
     }
@@ -172,10 +187,12 @@ export async function signOutAction() {
   const allCookies = cookieStore.getAll();
   allCookies.forEach((c) => {
     if (c.name.startsWith("sb-") || c.name.startsWith("apparchar_")) {
-      cookieStore.delete(c.name);
+      cookieStore.set(c.name, "", { path: "/", maxAge: 0, expires: new Date(0) });
+      cookieStore.delete({ name: c.name, path: "/" });
     }
   });
-  cookieStore.delete("apparchar_session");
-  revalidatePath("/", "layout");
+  cookieStore.set("apparchar_session", "", { path: "/", maxAge: 0, expires: new Date(0) });
+  cookieStore.delete({ name: "apparchar_session", path: "/" });
+
   redirect("/login");
 }

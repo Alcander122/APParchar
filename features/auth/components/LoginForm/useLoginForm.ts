@@ -1,13 +1,32 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { loginWithEmail, type AuthState } from "../../actions";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 export function useLoginForm() {
   const searchParams = useSearchParams();
   const redirectTarget = searchParams.get("redirect") || "";
   const reason = searchParams.get("reason") || "";
+
+  // Si el usuario está en la pantalla de login, asegurar que no queden residuos de tokens en localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        Object.keys(window.localStorage).forEach((key) => {
+          if (key.startsWith("sb-") || key.startsWith("apparchar_")) {
+            window.localStorage.removeItem(key);
+          }
+        });
+        if (isSupabaseConfigured()) {
+          createClient().auth.signOut({ scope: "local" }).catch(() => {});
+        }
+      } catch {
+        // Ignorar
+      }
+    }
+  }, []);
 
   const [showPassword, setShowPassword] = useState(false);
   const [emailInput, setEmailInput] = useState("");
