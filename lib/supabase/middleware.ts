@@ -45,24 +45,30 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-  const isAuthRoute =
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/register") ||
+  const isLoginOrRegister =
+    pathname.startsWith("/login") || pathname.startsWith("/register");
+  const isPublicOrAuthRoute =
+    isLoginOrRegister ||
     pathname.startsWith("/callback") ||
     pathname.startsWith("/auth") ||
     pathname.startsWith("/api") ||
-    pathname.startsWith("/join");
+    pathname.startsWith("/join") ||
+    pathname.startsWith("/invite");
 
   // Si no está autenticado y no es ruta pública/auth, redirige al login
-  if (!user && !isAuthRoute) {
+  if (!user && !isPublicOrAuthRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  // Si ya tiene sesión activa y accede a login o register, redirigir a inicio
-  if (user && isAuthRoute && !pathname.startsWith("/callback")) {
+  // Si ya tiene sesión activa y accede a login o register, redirigir al destino pendiente o a inicio
+  if (user && isLoginOrRegister) {
+    const redirectParam = request.nextUrl.searchParams.get("redirect");
     const url = request.nextUrl.clone();
+    if (redirectParam && redirectParam.startsWith("/")) {
+      return NextResponse.redirect(new URL(redirectParam, request.url));
+    }
     url.pathname = "/";
     return NextResponse.redirect(url);
   }

@@ -401,6 +401,24 @@ export interface Database {
         Args: Record<PropertyKey, never>;
         Returns: void;
       };
+      obtener_anfitrion_invitacion: {
+        Args: {
+          p_anfitrion_id: string;
+        };
+        Returns: {
+          id: string;
+          full_name: string | null;
+          username: string | null;
+          avatar_url: string | null;
+          streak: number;
+        }[];
+      };
+      aceptar_invitacion_amistad: {
+        Args: {
+          p_anfitrion_id: string;
+        };
+        Returns: boolean;
+      };
     };
     Enums: {
       [_ in never]: never;

@@ -4,6 +4,7 @@ import { MobileNav } from "@/components/layout/MobileNav";
 import { FabCreatePlan } from "@/components/layout/FabCreatePlan";
 import { InteractivePartyBackground } from "@/components/layout/InteractivePartyBackground";
 import { PlansProvider, CreatePlanModal } from "@/features/plans";
+import { PendingFriendInviteSync } from "@/features/friends";
 
 export default function AppLayout({
   children,
@@ -34,6 +35,10 @@ export default function AppLayout({
           </Suspense>
           {/* Modal de Creación de Parche con Pasos */}
           <CreatePlanModal />
+          {/* Sincronizador de invitación de amistad tras registro/onboarding */}
+          <Suspense fallback={null}>
+            <PendingFriendInviteSync />
+          </Suspense>
         </div>
       </div>
     </PlansProvider>

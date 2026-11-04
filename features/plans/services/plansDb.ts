@@ -7,7 +7,9 @@ type PollOptionInsert = Database["public"]["Tables"]["opciones_encuesta"]["Inser
 type PerfilRow = Database["public"]["Tables"]["perfiles"]["Row"];
 
 /**
- * Obtener amigos y usuarios registrados reales desde Supabase
+ * Obtener amigos directos del Árbol de Amigos del usuario actual desde Supabase.
+ * Cumple estrictamente RNF-06 (Privacidad de Red): Un usuario solo ve a sus amigos directos,
+ * nunca a toda la base de datos de usuarios de la plataforma.
  */
 export async function fetchFriendsFromSupabase(): Promise<Friend[]> {
   if (!isSupabaseConfigured()) {
@@ -18,33 +20,50 @@ export async function fetchFriendsFromSupabase(): Promise<Friend[]> {
   const { data: authData } = await supabase.auth.getUser();
   const currentUserId = authData?.user?.id;
 
-  const { data: perfilesData, error } = await supabase
-    .from("perfiles")
-    .select("*")
-    .order("streak", { ascending: false });
-
-  if (error) {
-    console.error("Error al consultar perfiles en Supabase:", error);
+  if (!currentUserId) {
     return [];
   }
 
-  // Consultar el círculo de amistad que el usuario actual le ha asignado a cada amigo
-  let amistadesMap: Record<string, "intimo" | "cercano" | "comunidad"> = {};
-  if (currentUserId) {
-    const { data: amistades } = await supabase
-      .from("amistades")
-      .select("amigo_id, circulo")
-      .eq("user_id", currentUserId);
+  // Consultar únicamente las relaciones de amistad directas del usuario actual
+  const { data: amistades, error: amistadesError } = await supabase
+    .from("amistades")
+    .select("user_id, amigo_id, circulo")
+    .or(`user_id.eq.${currentUserId},amigo_id.eq.${currentUserId}`);
 
-    if (amistades) {
-      amistadesMap = Object.fromEntries(
-        amistades.map((a) => [a.amigo_id, a.circulo])
-      );
+  if (amistadesError || !amistades || amistades.length === 0) {
+    return [];
+  }
+
+  const amistadesMap: Record<string, "intimo" | "cercano" | "comunidad"> = {};
+  for (const rel of amistades) {
+    if (rel.user_id === currentUserId && rel.amigo_id !== currentUserId) {
+      amistadesMap[rel.amigo_id] = rel.circulo;
+    } else if (
+      rel.amigo_id === currentUserId &&
+      rel.user_id !== currentUserId &&
+      !amistadesMap[rel.user_id]
+    ) {
+      amistadesMap[rel.user_id] = rel.circulo;
     }
   }
 
-  // Devolver los perfiles registrados con su círculo relacional real
-  return (perfilesData || []).map((p) => ({
+  const friendIds = Object.keys(amistadesMap);
+  if (friendIds.length === 0) {
+    return [];
+  }
+
+  const { data: perfilesData, error } = await supabase
+    .from("perfiles")
+    .select("*")
+    .in("id", friendIds)
+    .order("streak", { ascending: false });
+
+  if (error || !perfilesData) {
+    console.error("Error al consultar perfiles de amigos en Supabase:", error);
+    return [];
+  }
+
+  return perfilesData.map((p) => ({
     id: p.id,
     name: p.full_name || p.username || "Amigo del parche",
     role: p.role === "admin" ? "Organizador" : "Parcheador",

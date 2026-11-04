@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Users, Check, Flame, Search } from "lucide-react";
+import Link from "next/link";
+import { Users, Check, Flame, Search, UserPlus } from "lucide-react";
 import { Friend } from "../../types";
 import { useFriendsSelector } from "./useFriendsSelector";
 import "./FriendsSelector.css";
@@ -63,10 +64,22 @@ export function FriendsSelector({
           Cargando amigos desde la base de datos...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="p-6 text-center text-xs border border-dashed rounded-xl opacity-75">
-          {searchQuery
-            ? "No se encontraron amigos con esa búsqueda."
-            : "No hay amigos en este círculo aún. ¡Invítalos al parche!"}
+        <div className="p-6 text-center text-xs border border-dashed rounded-xl space-y-3">
+          <p className="opacity-75">
+            {searchQuery
+              ? "No se encontraron amigos con esa búsqueda."
+              : "No hay amigos en este círculo aún. ¡Invítalos a tu Árbol de Amigos!"}
+          </p>
+          {!searchQuery && (
+            <Link
+              href="/amigos"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white"
+              style={{ backgroundColor: "var(--color-primary)" }}
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>Ir a mi Árbol de Amigos</span>
+            </Link>
+          )}
         </div>
       ) : (
         <div className="friends-grid-list">

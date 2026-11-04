@@ -291,7 +291,7 @@ DROP POLICY IF EXISTS "Crear amistad" ON public.amistades;
 CREATE POLICY "Crear amistad"
   ON public.amistades FOR INSERT
   TO authenticated
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (auth.uid() = user_id OR auth.uid() = amigo_id);
 
 DROP POLICY IF EXISTS "Actualizar circulo de amistad" ON public.amistades;
 CREATE POLICY "Actualizar circulo de amistad"
@@ -303,7 +303,7 @@ DROP POLICY IF EXISTS "Eliminar amistad" ON public.amistades;
 CREATE POLICY "Eliminar amistad"
   ON public.amistades FOR DELETE
   TO authenticated
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = user_id OR auth.uid() = amigo_id);
 
 -- Políticas PLANES
 DROP POLICY IF EXISTS "Lectura de planes para usuarios autenticados" ON public.planes;
@@ -585,6 +585,56 @@ BEGIN
   PERFORM public.cerrar_encuestas_vencidas();
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ==============================================================================
+-- 16. INVITACIÓN Y VINCULACIÓN AL ÁRBOL DE AMIGOS (HU02 - RNF-06)
+-- ==============================================================================
+
+-- A) Consultar resumen público seguro de un anfitrión por su ID (para /invite/[token])
+CREATE OR REPLACE FUNCTION public.obtener_anfitrion_invitacion(p_anfitrion_id UUID)
+RETURNS TABLE (
+  id UUID,
+  full_name TEXT,
+  username TEXT,
+  avatar_url TEXT,
+  streak INTEGER
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT p.id, p.full_name, p.username, p.avatar_url, p.streak
+  FROM public.perfiles p
+  WHERE p.id = p_anfitrion_id
+  LIMIT 1;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.obtener_anfitrion_invitacion(UUID) TO anon, authenticated;
+
+-- B) Aceptar invitación y vincular amistad bidireccional de forma atómica
+CREATE OR REPLACE FUNCTION public.aceptar_invitacion_amistad(p_anfitrion_id UUID)
+RETURNS BOOLEAN AS $$
+DECLARE
+  v_invitado_id UUID := auth.uid();
+BEGIN
+  IF v_invitado_id IS NULL OR v_invitado_id = p_anfitrion_id THEN
+    RETURN FALSE;
+  END IF;
+
+  -- Sentido 1: Invitado -> Anfitrión
+  INSERT INTO public.amistades (user_id, amigo_id, circulo)
+  VALUES (v_invitado_id, p_anfitrion_id, 'cercano')
+  ON CONFLICT (user_id, amigo_id) DO NOTHING;
+
+  -- Sentido 2: Anfitrión -> Invitado
+  INSERT INTO public.amistades (user_id, amigo_id, circulo)
+  VALUES (p_anfitrion_id, v_invitado_id, 'cercano')
+  ON CONFLICT (user_id, amigo_id) DO NOTHING;
+
+  RETURN TRUE;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.aceptar_invitacion_amistad(UUID) TO authenticated;
 
 -- Programar ejecución cada minuto con pg_cron si está habilitado
 DO $$

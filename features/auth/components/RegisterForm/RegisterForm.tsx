@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { UserPlus, Loader2 } from "lucide-react";
+import { UserPlus, Loader2, MailCheck } from "lucide-react";
 import "./RegisterForm.css";
 import { useRegisterForm } from "./useRegisterForm";
 import { MESSAGES } from "@/lib/constants/messages";
@@ -11,7 +11,8 @@ import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { GoogleAuthButton } from "../GoogleAuthButton";
 
 export function RegisterForm() {
-  const { state, formAction, isPending, redirectTarget } = useRegisterForm();
+  const { state, formAction, isPending, redirectTarget, isInviteFlow } =
+    useRegisterForm();
 
   return (
     <div className="register-card">
@@ -37,6 +38,27 @@ export function RegisterForm() {
         </h1>
         <p className="register-subtitle">{MESSAGES.AUTH.REGISTER_SUBTITLE}</p>
       </header>
+
+      {isInviteFlow && (
+        <aside
+          className="p-3.5 mb-4 rounded-xl border flex items-center gap-3 text-xs leading-relaxed"
+          style={{
+            backgroundColor: "var(--color-status-info-bg)",
+            borderColor: "var(--color-brand-primary)",
+            color: "var(--color-text-primary)",
+          }}
+        >
+          <MailCheck className="w-5 h-5 shrink-0 text-indigo-400" />
+          <div>
+            <strong className="block font-bold">
+              ¡Tienes una invitación pendiente!
+            </strong>
+            <span>
+              {MESSAGES.FRIENDS.ACCEPT_INVITE.PERSIST_HINT}
+            </span>
+          </div>
+        </aside>
+      )}
 
       {state?.error && (
         <div className="register-error-alert" role="alert">
